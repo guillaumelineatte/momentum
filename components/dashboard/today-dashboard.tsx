@@ -16,6 +16,7 @@ import {
   Footprints,
   Gauge,
   HeartPulse,
+  LogOut,
   MoreHorizontal,
   Plus,
   Scale,
@@ -27,6 +28,7 @@ import {
   X,
   Zap,
 } from 'lucide-react'
+import { deconnexionAction } from '@/app/(auth)/actions'
 
 const days = [
   { label: 'LUN', day: '16', state: 'done' },
@@ -45,14 +47,14 @@ const activities = [
 
 const bars = [38, 52, 44, 66, 48, 78, 58, 72, 84, 62, 88, 70, 92, 80, 96]
 
-export default function Page() {
+export function TodayDashboard({ prenom }: { prenom: string }) {
   const [activeTab, setActiveTab] = useState('Aujourd’hui')
   const [showAdd, setShowAdd] = useState(false)
   const [toast, setToast] = useState(false)
   const [selectedDay, setSelectedDay] = useState('18')
-  const [period, setPeriod] = useState('4 sem.')
 
   const todayLabel = useMemo(() => selectedDay === '18' ? 'Mercredi 18 juin' : `Journée du ${selectedDay} juin`, [selectedDay])
+  const initiales = prenom ? prenom.slice(0, 2).toUpperCase() : '—'
 
   function addActivity(title: string) {
     setShowAdd(false)
@@ -80,9 +82,14 @@ export default function Page() {
           ))}
         </nav>
         <div className="sidebar-foot">
-          <div className="mini-avatar">JD</div>
-          <div><strong>Julien D.</strong><span>Objectif : recomposition</span></div>
+          <div className="mini-avatar">{initiales}</div>
+          <div><strong>{prenom || 'Toi'}</strong><span>Objectif : recomposition</span></div>
           <button className="icon-button" aria-label="Paramètres"><Settings2 size={17} /></button>
+          <form action={deconnexionAction}>
+            <button className="icon-button" aria-label="Se déconnecter" title="Se déconnecter">
+              <LogOut size={17} />
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -90,7 +97,7 @@ export default function Page() {
         <header className="topbar">
           <div className="mobile-brand"><div className="brand-mark"><span>M</span></div><strong>momentum</strong></div>
           <div className="topbar-date"><span className="eyebrow">JUIN 2025</span><button className="month-picker">18 <ChevronDown /></button></div>
-          <div className="top-actions"><button className="icon-button"><MoreHorizontal size={20} /></button><div className="profile-pill"><div className="mini-avatar">JD</div><span>Julien</span><ChevronRight size={15} /></div></div>
+          <div className="top-actions"><button className="icon-button"><MoreHorizontal size={20} /></button><div className="profile-pill"><div className="mini-avatar">{initiales}</div><span>{prenom || 'Toi'}</span><ChevronRight size={15} /></div></div>
         </header>
 
         <div className="page-heading">
