@@ -13,13 +13,21 @@ export type ConnexionInput = z.infer<typeof connexionSchema>
 
 export const inscriptionSchema = z
   .object({
-    prenom: z.string().trim().min(1, 'Prénom requis').max(50),
-    email: emailSchema,
-    password: passwordSchema,
-    confirmPassword: z.string(),
+    prenom: z
+      .string()
+      .trim()
+      .min(1, 'Merci d’indiquer ton prénom.')
+      .max(50, 'Ce prénom est trop long (50 caractères maximum).'),
+    email: z
+      .string()
+      .trim()
+      .min(1, 'Merci d’indiquer ton adresse e-mail.')
+      .refine((valeur) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valeur), 'Cette adresse e-mail ne semble pas valide.'),
+    password: z.string().min(8, 'Ton mot de passe doit contenir au moins 8 caractères.'),
+    confirmPassword: z.string().min(1, 'Merci de confirmer ton mot de passe.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Les mots de passe ne correspondent pas',
+    message: 'Les deux mots de passe ne sont pas identiques.',
     path: ['confirmPassword'],
   })
 export type InscriptionInput = z.infer<typeof inscriptionSchema>
