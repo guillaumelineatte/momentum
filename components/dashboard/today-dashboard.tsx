@@ -49,6 +49,7 @@ export type ActiviteJour = {
   titre: string
   meta: string
   valeur: string
+  href?: string
 }
 
 type Tendance = { valeur: number; hausse: boolean }
@@ -199,11 +200,18 @@ export function TodayDashboard({
             )}
             {activites.map((activite) => {
               const Icon = ICONES[activite.type]
-              return (
-                <article className="activity-card glass-card" key={`${activite.type}-${activite.id}`}>
+              const contenu = (
+                <>
                   <div className={`activity-icon ${COULEURS[activite.type]}`}><Icon size={20} /></div>
                   <div className="activity-info"><strong>{activite.titre}</strong><span>{activite.meta}</span></div>
                   {activite.valeur && <b>{activite.valeur}</b>}
+                </>
+              )
+              return (
+                <article className="activity-card glass-card" key={`${activite.type}-${activite.id}`}>
+                  {activite.href ? (
+                    <Link href={activite.href} style={{ display: 'contents' }}>{contenu}</Link>
+                  ) : contenu}
                   <button className="more-button" aria-label={`Supprimer ${activite.titre}`} onClick={() => setASupprimer(activite)}>
                     <MoreHorizontal size={17} />
                   </button>
