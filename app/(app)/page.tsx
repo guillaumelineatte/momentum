@@ -63,8 +63,9 @@ export default async function Page({
       id: s.id,
       type: 'muscu' as const,
       titre: s.nomPersonnalise || LABELS_TYPE_SEANCE[s.type] || 'Musculation',
-      meta: s.dureeSecondes ? `Musculation · ${formatDureeMin(s.dureeSecondes)}` : 'Musculation',
+      meta: s.dureeSecondes ? `Musculation · ${formatDureeMin(s.dureeSecondes)}` : 'Musculation · en cours',
       valeur: `${s.sets.length} série${s.sets.length > 1 ? 's' : ''}`,
+      href: s.dureeSecondes != null ? `/activites/musculation/${s.id}/recap` : `/activites/musculation/${s.id}`,
     })),
     ...jour.cardio.map((c) => ({
       id: c.id,
