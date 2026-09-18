@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BarChart3, CalendarDays, CircleUserRound, LogOut, Settings2, Zap } from 'lucide-react'
+import { BarChart3, CalendarDays, CircleUserRound, Flame, LogOut, Settings2, Zap } from 'lucide-react'
 import { deconnexionAction } from '@/app/(auth)/actions'
 
 const NAV_ITEMS = [
@@ -19,10 +19,15 @@ export type PageActive = (typeof NAV_ITEMS)[number]['label']
 export function DashboardShell({
   prenom,
   pageActive,
+  streak,
   children,
 }: {
   prenom: string
   pageActive: PageActive
+  /** Optionnel : affiché en haut à droite si fourni (flamme de régularité, visible depuis
+   * n'importe quelle page — le nom de l'utilisateur, lui, est déjà dans la sidebar et sur
+   * la page Profil, pas besoin de le répéter ici). */
+  streak?: number
   children: React.ReactNode
 }) {
   const initiales = prenom ? prenom.slice(0, 2).toUpperCase() : '—'
@@ -58,7 +63,12 @@ export function DashboardShell({
           <div className="mobile-brand"><div className="brand-mark"><span>M</span></div><strong>momentum</strong></div>
           <div />
           <div className="top-actions">
-            <div className="profile-pill"><div className="mini-avatar">{initiales}</div><span>{prenom || 'Toi'}</span></div>
+            {!!streak && (
+              <div className="streak-pill compact" title="Jours consécutifs d'activité">
+                <Flame size={15} fill="currentColor" />
+                <div><strong>{streak}</strong><span>jour{streak > 1 ? 's' : ''}</span></div>
+              </div>
+            )}
           </div>
         </header>
 

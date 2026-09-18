@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { getActivitesParJour } from '@/lib/data/jour'
+import { getActivitesParJour, getStreak } from '@/lib/data/jour'
+import { prisma } from '@/lib/prisma'
 import {
   grilleMoisDe,
   parseMoisParam,
@@ -32,13 +33,17 @@ export default async function CalendrierPage({
   const moisCourant = parseMoisParam(mois)
   const jourSelectionne = date ? parseDateParam(date) : undefined
   const grille = grilleMoisDe(moisCourant)
-  const activites = await getActivitesParJour(session.user.id, grille)
+  const [activites, profile, streak] = await Promise.all([
+    getActivitesParJour(session.user.id, grille),
+    prisma.profile.findUnique({ where: { userId: session.user.id } }),
+    getStreak(session.user.id),
+  ])
 
   const moisPrecedentParam = formatMoisParam(moisPrecedent(moisCourant))
   const moisSuivantParam = formatMoisParam(moisSuivant(moisCourant))
 
   return (
-    <DashboardShell prenom={session.user.name ?? ''} pageActive="Calendrier">
+    <DashboardShell prenom={profile?.prenom ?? session.user.name ?? ''} pageActive="Calendrier" streak={streak}>
       <div className="calendar-page-header">
         <div>
           <p className="eyebrow">CALENDRIER</p>
@@ -85,6 +90,7 @@ export default async function CalendrierPage({
         <div><i style={{ background: 'var(--cyan)' }} /> Cardio</div>
         <div><i style={{ background: 'var(--gold)' }} /> Mesures</div>
         <div><i style={{ background: 'var(--violet)' }} /> Suivi quotidien</div>
+        <div><i style={{ background: 'var(--success)' }} /> Repos</div>
       </div>
     </DashboardShell>
   )

@@ -4,7 +4,7 @@ import { jourRange, subDays, formatDateParam } from '@/lib/dates'
 export async function getJourSummary(userId: string, date: Date) {
   const { debut, fin } = jourRange(date)
 
-  const [seances, cardio, mesures, quotidien] = await Promise.all([
+  const [seances, cardio, mesures, quotidien, repos] = await Promise.all([
     prisma.workoutSession.findMany({
       where: { userId, date: { gte: debut, lte: fin } },
       include: { sets: true },
@@ -21,9 +21,12 @@ export async function getJourSummary(userId: string, date: Date) {
     prisma.dailyMetric.findFirst({
       where: { userId, date: { gte: debut, lte: fin } },
     }),
+    prisma.restDay.findFirst({
+      where: { userId, date: { gte: debut, lte: fin } },
+    }),
   ])
 
-  return { seances, cardio, mesures, quotidien }
+  return { seances, cardio, mesures, quotidien, repos }
 }
 
 /** Métrique du jour précédent, pour afficher une tendance simple sur les chiffres du jour. */
@@ -33,7 +36,7 @@ export async function getQuotidienVeille(userId: string, date: Date) {
   return prisma.dailyMetric.findFirst({ where: { userId, date: { gte: debut, lte: fin } } })
 }
 
-export type TypeActivite = 'muscu' | 'cardio' | 'mesure' | 'quotidien'
+export type TypeActivite = 'muscu' | 'cardio' | 'mesure' | 'quotidien' | 'repos'
 
 /** Pour chaque jour de `dates`, quels types d'activité sont présents (pastilles du calendrier / bandeau semaine). */
 export async function getActivitesParJour(userId: string, dates: Date[]): Promise<Map<string, Set<TypeActivite>>> {
@@ -43,11 +46,12 @@ export async function getActivitesParJour(userId: string, dates: Date[]): Promis
   const { debut: rangeDebut } = jourRange(debut)
   const { fin: rangeFin } = jourRange(fin)
 
-  const [seances, cardio, mesures, quotidien] = await Promise.all([
+  const [seances, cardio, mesures, quotidien, repos] = await Promise.all([
     prisma.workoutSession.findMany({ where: { userId, date: { gte: rangeDebut, lte: rangeFin } }, select: { date: true } }),
     prisma.cardioSession.findMany({ where: { userId, date: { gte: rangeDebut, lte: rangeFin } }, select: { date: true } }),
     prisma.bodyMeasurement.findMany({ where: { userId, date: { gte: rangeDebut, lte: rangeFin } }, select: { date: true } }),
     prisma.dailyMetric.findMany({ where: { userId, date: { gte: rangeDebut, lte: rangeFin } }, select: { date: true } }),
+    prisma.restDay.findMany({ where: { userId, date: { gte: rangeDebut, lte: rangeFin } }, select: { date: true } }),
   ])
 
   const map = new Map<string, Set<TypeActivite>>()
@@ -62,6 +66,7 @@ export async function getActivitesParJour(userId: string, dates: Date[]): Promis
   ajoute(cardio, 'cardio')
   ajoute(mesures, 'mesure')
   ajoute(quotidien, 'quotidien')
+  ajoute(repos, 'repos')
 
   return map
 }

@@ -6,18 +6,51 @@ import { prisma } from '@/lib/prisma'
 import { onboardingSchema } from '@/lib/validations/onboarding'
 import type { ActionState } from '@/app/(auth)/actions'
 
+// Champs scalaires du formulaire, dans l'ordre où ils apparaissent — sert à savoir
+// lesquels reconduire (valides) et lesquels vider (en erreur) après un échec.
+const CHAMPS_ONBOARDING = [
+  'tailleCm',
+  'poidsDepartKg',
+  'dateNaissance',
+  'tourTailleDepartCm',
+  'tourHanchesDepartCm',
+  'tourPoitrineDepartCm',
+  'tourBrasDepartCm',
+  'tourCuissesDepartCm',
+  'tourMolletsDepartCm',
+  'tourCouDepartCm',
+] as const
+
 export async function completeOnboardingAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const session = await auth()
   if (!session?.user?.id) redirect('/connexion')
 
   const raw = Object.fromEntries(formData)
+  const objectifsSoumis = formData.getAll('objectifs').map(String)
   const parsed = onboardingSchema.safeParse({
     ...raw,
-    objectifs: formData.getAll('objectifs'),
+    objectifs: objectifsSoumis,
   })
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Formulaire invalide.' }
+    const fieldErrors: Record<string, string> = {}
+    for (const issue of parsed.error.issues) {
+      const champ = issue.path[0]
+      if (typeof champ === 'string' && !fieldErrors[champ]) fieldErrors[champ] = issue.message
+    }
+
+    const values: Record<string, string> = {}
+    for (const champ of CHAMPS_ONBOARDING) {
+      if (!fieldErrors[champ]) values[champ] = String(raw[champ] ?? '')
+    }
+
+    return {
+      fieldErrors,
+      values,
+      // Les objectifs cochés ne sont jamais en erreur individuellement (seul le "au moins 1"
+      // global peut échouer) -> on les reconduit toujours tels quels.
+      arrayValues: { objectifs: objectifsSoumis },
+    }
   }
 
   const userId = session.user.id

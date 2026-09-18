@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { RouterCacheBuster } from '@/components/router-cache-buster'
 
 // Garde-fou serveur pour toutes les pages authentifiées de l'app (Aujourd'hui,
 // Calendrier, Progression, Profil...). Le middleware garantit déjà la présence
@@ -13,5 +14,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const profile = await prisma.profile.findUnique({ where: { userId: session.user.id } })
   if (!profile) redirect('/onboarding')
 
-  return <>{children}</>
+  return (
+    <>
+      <RouterCacheBuster />
+      {children}
+    </>
+  )
 }
