@@ -5,14 +5,14 @@ import { formatDateParam } from '@/lib/dates'
 export default async function NouvelleCardioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>
+  searchParams: Promise<{ date?: string; type?: string }>
 }) {
-  const { date } = await searchParams
+  const { date, type } = await searchParams
   const dateValue = date ?? formatDateParam(new Date())
 
   return (
     <ActiviteShell date={dateValue} titre="Course à pied / cardio" sousTitre="Distance, durée, ressenti — l'allure est calculée automatiquement.">
-      <CardioForm date={dateValue} />
+      <CardioForm date={dateValue} typeInitial={type} />
     </ActiviteShell>
   )
 }

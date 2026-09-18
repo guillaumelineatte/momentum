@@ -37,6 +37,7 @@ model User {
   dailyMetrics      DailyMetric[]
   goals             Goal[]
   userBadges        UserBadge[]
+  restDays          RestDay[]
 
   @@map("users")
 }
@@ -221,6 +222,7 @@ model CardioSession {
   id             String     @id @default(cuid())
   userId         String
   type           TypeCardio
+  nomPersonnalise String? // utilisé quand type = AUTRE, propre à l'utilisateur qui l'a saisi
   date           DateTime   @default(now())
   distanceKm     Float?
   dureeSecondes  Int
@@ -276,6 +278,20 @@ model DailyMetric {
 
   @@unique([userId, date])
   @@map("daily_metrics")
+}
+
+// Jour marqué explicitement comme repos par l'utilisateur : compte comme une
+// activité pour le streak de régularité, sans être une vraie séance.
+model RestDay {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("rest_days")
 }
 
 enum TypeObjectif {

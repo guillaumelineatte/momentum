@@ -69,7 +69,7 @@ export default async function Page({
     ...jour.cardio.map((c) => ({
       id: c.id,
       type: 'cardio' as const,
-      titre: LABELS_TYPE_CARDIO[c.type] ?? 'Cardio',
+      titre: c.nomPersonnalise || LABELS_TYPE_CARDIO[c.type] || 'Cardio',
       meta: `Cardio · ${formatDureeMin(c.dureeSecondes)}`,
       valeur: c.distanceKm ? `${c.distanceKm} km` : formatDureeMin(c.dureeSecondes),
     })),
@@ -87,6 +87,15 @@ export default async function Page({
           titre: 'Suivi quotidien',
           meta: 'Pas, sommeil, hydratation…',
           valeur: jour.quotidien.pas ? `${jour.quotidien.pas.toLocaleString('fr-FR')} pas` : '—',
+        }]
+      : []),
+    ...(jour.repos
+      ? [{
+          id: jour.repos.id,
+          type: 'repos' as const,
+          titre: 'Jour de repos',
+          meta: 'Récupération',
+          valeur: '',
         }]
       : []),
   ]

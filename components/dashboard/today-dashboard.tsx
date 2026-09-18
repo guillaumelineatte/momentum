@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   ArrowDownRight,
   ArrowUpRight,
+  BedDouble,
   CalendarDays,
   Check,
   ChevronLeft,
@@ -25,7 +26,14 @@ import {
   X,
 } from 'lucide-react'
 import { DashboardShell } from './dashboard-shell'
-import { supprimerSeanceAction, supprimerCardioAction, supprimerMesureAction, supprimerQuotidienAction } from '@/app/(app)/activites/actions'
+import {
+  supprimerSeanceAction,
+  supprimerCardioAction,
+  supprimerMesureAction,
+  supprimerQuotidienAction,
+  supprimerReposAction,
+  marquerJourReposAction,
+} from '@/app/(app)/activites/actions'
 
 export type JourSemaine = {
   cle: string
@@ -37,7 +45,7 @@ export type JourSemaine = {
 
 export type ActiviteJour = {
   id: string
-  type: 'muscu' | 'cardio' | 'mesure' | 'quotidien'
+  type: 'muscu' | 'cardio' | 'mesure' | 'quotidien' | 'repos'
   titre: string
   meta: string
   valeur: string
@@ -50,18 +58,21 @@ const ICONES: Record<ActiviteJour['type'], typeof Dumbbell> = {
   cardio: Footprints,
   mesure: Scale,
   quotidien: HeartPulse,
+  repos: BedDouble,
 }
 const COULEURS: Record<ActiviteJour['type'], string> = {
   muscu: 'coral',
   cardio: 'blue',
   mesure: 'gold',
   quotidien: 'violet',
+  repos: 'green',
 }
 const SUPPRESSIONS: Record<ActiviteJour['type'], (id: string) => Promise<void>> = {
   muscu: supprimerSeanceAction,
   cardio: supprimerCardioAction,
   mesure: supprimerMesureAction,
   quotidien: supprimerQuotidienAction,
+  repos: supprimerReposAction,
 }
 
 export function TodayDashboard({
@@ -96,6 +107,7 @@ export function TodayDashboard({
   const [toast, setToast] = useState<string | null>(null)
   const [aSupprimer, setASupprimer] = useState<ActiviteJour | null>(null)
   const [suppressionEnCours, setSuppressionEnCours] = useState(false)
+  const [reposEnCours, setReposEnCours] = useState(false)
 
   useEffect(() => {
     if (!toastAjout) return
@@ -129,7 +141,22 @@ export function TodayDashboard({
   const jourPrecedent = semaine[0]?.cle
   const jourSuivant = semaine[semaine.length - 1]?.cle
 
+  async function marquerRepos() {
+    setReposEnCours(true)
+    try {
+      await marquerJourReposAction(dateSelectionnee)
+      setShowAdd(false)
+      setToast('Jour de repos enregistré')
+    } catch {
+      setToast("Impossible d'enregistrer ce jour de repos, réessaie.")
+    } finally {
+      setReposEnCours(false)
+    }
+  }
+
   return (
+    // Pas de `streak` ici : la page Aujourd'hui a déjà son propre streak-pill bien visible
+    // dans le page-heading juste en dessous, pas besoin de le dupliquer dans la topbar.
     <DashboardShell prenom={prenom} pageActive="Aujourd’hui">
       <div className="page-heading">
         <div>
@@ -176,7 +203,7 @@ export function TodayDashboard({
                 <article className="activity-card glass-card" key={`${activite.type}-${activite.id}`}>
                   <div className={`activity-icon ${COULEURS[activite.type]}`}><Icon size={20} /></div>
                   <div className="activity-info"><strong>{activite.titre}</strong><span>{activite.meta}</span></div>
-                  <b>{activite.valeur}</b>
+                  {activite.valeur && <b>{activite.valeur}</b>}
                   <button className="more-button" aria-label={`Supprimer ${activite.titre}`} onClick={() => setASupprimer(activite)}>
                     <MoreHorizontal size={17} />
                   </button>
@@ -237,10 +264,15 @@ export function TodayDashboard({
             </div>
             <div className="activity-options">
               <AddOption icon={Dumbbell} title="Musculation" subtitle="Séance et séries" href={`/activites/musculation/nouvelle?date=${dateSelectionnee}`} />
-              <AddOption icon={Footprints} title="Course à pied" subtitle="Distance et allure" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}`} />
-              <AddOption icon={Waves} title="Autre cardio" subtitle="Vélo, natation…" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}`} />
+              <AddOption icon={Footprints} title="Course à pied" subtitle="Distance et allure" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=FOOTING`} />
+              <AddOption icon={Waves} title="Autre cardio" subtitle="Vélo, natation…" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=AUTRE`} />
               <AddOption icon={Scale} title="Mesures" subtitle="Poids et mensurations" href={`/activites/mesures/nouvelle?date=${dateSelectionnee}`} />
               <AddOption icon={HeartPulse} title="Suivi quotidien" subtitle="Pas, sommeil, hydratation…" href={`/activites/suivi/nouvelle?date=${dateSelectionnee}`} />
+              <button className="add-option" onClick={marquerRepos} disabled={reposEnCours}>
+                <span className="option-icon"><BedDouble size={20} /></span>
+                <span><strong>Jour de repos</strong><small>Compte pour ta régularité</small></span>
+                <ChevronRight size={17} />
+              </button>
             </div>
           </div>
         </div>

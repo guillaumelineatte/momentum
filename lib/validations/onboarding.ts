@@ -11,13 +11,25 @@ export const OBJECTIFS = [
 
 const optionalPositiveNumber = z.coerce.number().positive().optional().or(z.literal('').transform(() => undefined))
 
+const ANNEE_MIN_NAISSANCE = 1900
+
 export const onboardingSchema = z.object({
   tailleCm: optionalPositiveNumber,
   poidsDepartKg: optionalPositiveNumber,
   dateNaissance: z
     .string()
     .optional()
-    .transform((v) => (v ? v : undefined)),
+    .transform((v) => (v ? v : undefined))
+    .refine(
+      (v) => {
+        if (!v) return true
+        const date = new Date(v)
+        if (Number.isNaN(date.getTime())) return false
+        const annee = date.getFullYear()
+        return annee >= ANNEE_MIN_NAISSANCE && date.getTime() <= Date.now()
+      },
+      { message: `Cette date de naissance n'est pas valide (entre ${ANNEE_MIN_NAISSANCE} et aujourd'hui).` },
+    ),
   objectifs: z.array(z.enum(OBJECTIFS.map((o) => o.value) as [string, ...string[]])).min(1, 'Choisis au moins un objectif'),
   tourTailleDepartCm: optionalPositiveNumber,
   tourHanchesDepartCm: optionalPositiveNumber,

@@ -2,6 +2,7 @@ import { CircleUserRound } from 'lucide-react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { getStreak } from '@/lib/data/jour'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { deconnexionAction } from '@/app/(auth)/actions'
 import { OBJECTIFS } from '@/lib/validations/onboarding'
@@ -11,15 +12,16 @@ export default async function ProfilPage() {
   const session = await auth()
   if (!session?.user?.id) redirect('/connexion')
 
-  const [profile, user] = await Promise.all([
+  const [profile, user, streak] = await Promise.all([
     prisma.profile.findUnique({ where: { userId: session.user.id } }),
     prisma.user.findUnique({ where: { id: session.user.id } }),
+    getStreak(session.user.id),
   ])
 
   const labelsObjectifs = new Map(OBJECTIFS.map((o) => [o.value, o.label]))
 
   return (
-    <DashboardShell prenom={profile?.prenom ?? ''} pageActive="Profil">
+    <DashboardShell prenom={profile?.prenom ?? ''} pageActive="Profil" streak={streak}>
       <div className="page-heading">
         <div>
           <p className="eyebrow accent">PROFIL</p>

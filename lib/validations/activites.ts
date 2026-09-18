@@ -16,16 +16,27 @@ export const TYPES_CARDIO = [
   { value: 'AUTRE', label: 'Autre' },
 ] as const
 
-export const cardioSchema = z.object({
-  date: z.string().min(1),
-  type: z.enum(TYPES_CARDIO.map((t) => t.value) as [string, ...string[]]),
-  distanceKm: nombrePositifOptionnel,
-  dureeMinutes: z.coerce.number().positive('Durée requise'),
-  deniveleM: nombreOptionnel,
-  frequenceCardiaqueMoyenne: nombreOptionnel,
-  ressenti: echelle5Optionnelle,
-  note: z.string().max(500).optional().or(z.literal('').transform(() => undefined)),
-})
+export const cardioSchema = z
+  .object({
+    date: z.string().min(1),
+    type: z.enum(TYPES_CARDIO.map((t) => t.value) as [string, ...string[]]),
+    nomPersonnalise: z
+      .string()
+      .trim()
+      .max(60, 'Ce nom est trop long (60 caractères maximum).')
+      .optional()
+      .or(z.literal('').transform(() => undefined)),
+    distanceKm: nombrePositifOptionnel,
+    dureeMinutes: z.coerce.number().positive('Durée requise'),
+    deniveleM: nombreOptionnel,
+    frequenceCardiaqueMoyenne: nombreOptionnel,
+    ressenti: echelle5Optionnelle,
+    note: z.string().max(500).optional().or(z.literal('').transform(() => undefined)),
+  })
+  .refine((data) => data.type !== 'AUTRE' || !!data.nomPersonnalise, {
+    message: 'Donne un nom à cette activité (ex. Escalade, Yoga…).',
+    path: ['nomPersonnalise'],
+  })
 export type CardioInput = z.infer<typeof cardioSchema>
 
 export const mesuresSchema = z.object({

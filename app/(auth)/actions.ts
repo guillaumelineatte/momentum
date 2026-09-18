@@ -22,6 +22,8 @@ export type ActionState =
       /** Valeurs à réafficher pour les champs qui n'étaient PAS en erreur, pour ne pas faire
        * tout retaper à l'utilisateur — les champs en erreur, eux, repartent vides. */
       values?: Record<string, string>
+      /** Cases à cocher multi-valeurs à réafficher (ex. objectifs). */
+      arrayValues?: Record<string, string[]>
     }
   | undefined
 
@@ -30,8 +32,9 @@ export async function deconnexionAction() {
 }
 
 export async function connexionAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const email = String(formData.get('email') ?? '')
   const parsed = connexionSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: 'Email ou mot de passe invalide.' }
+  if (!parsed.success) return { error: 'Adresse e-mail ou mot de passe invalide.', values: { email } }
 
   try {
     await signIn('credentials', {
@@ -41,7 +44,7 @@ export async function connexionAction(_prevState: ActionState, formData: FormDat
     })
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: 'Email ou mot de passe incorrect.' }
+      return { error: 'Adresse e-mail ou mot de passe incorrect.', values: { email } }
     }
     throw error // NEXT_REDIRECT doit être re-lancé, ce n'est pas une vraie erreur
   }

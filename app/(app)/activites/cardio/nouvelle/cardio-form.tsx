@@ -1,12 +1,13 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { creerCardioAction } from '../../actions'
 import type { ActionState } from '@/app/(auth)/actions'
 import { TYPES_CARDIO } from '@/lib/validations/activites'
 
-export function CardioForm({ date }: { date: string }) {
+export function CardioForm({ date, typeInitial }: { date: string; typeInitial?: string }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(creerCardioAction, undefined)
+  const [type, setType] = useState(typeInitial && TYPES_CARDIO.some((t) => t.value === typeInitial) ? typeInitial : 'FOOTING')
 
   return (
     <form action={formAction} noValidate>
@@ -16,12 +17,27 @@ export function CardioForm({ date }: { date: string }) {
 
       <div className="form-field">
         <label htmlFor="type">Type de séance</label>
-        <select className="form-select" id="type" name="type" defaultValue="FOOTING" required>
+        <select className="form-select" id="type" name="type" value={type} onChange={(e) => setType(e.target.value)} required>
           {TYPES_CARDIO.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>
       </div>
+
+      {type === 'AUTRE' && (
+        <div className="form-field">
+          <label htmlFor="nomPersonnalise">Nom de l'activité</label>
+          <input
+            className="form-input"
+            id="nomPersonnalise"
+            name="nomPersonnalise"
+            type="text"
+            placeholder="Ex. Escalade, Yoga, Randonnée…"
+            maxLength={60}
+            autoFocus
+          />
+        </div>
+      )}
 
       <div className="form-row">
         <div className="form-field">

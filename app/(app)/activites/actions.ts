@@ -26,6 +26,7 @@ export async function creerCardioAction(_prevState: ActionState, formData: FormD
       date: new Date(date),
       dureeSecondes: Math.round(dureeMinutes * 60),
       type: reste.type as never,
+      nomPersonnalise: reste.nomPersonnalise,
       distanceKm: reste.distanceKm,
       deniveleM: reste.deniveleM,
       frequenceCardiaqueMoyenne: reste.frequenceCardiaqueMoyenne,
@@ -110,4 +111,25 @@ export async function supprimerQuotidienAction(id: string) {
     () => prisma.dailyMetric.findUnique({ where: { id } }),
     () => prisma.dailyMetric.delete({ where: { id } }),
   )
+}
+
+export async function supprimerReposAction(id: string) {
+  await supprimerEtRevalider(
+    () => prisma.restDay.findUnique({ where: { id } }),
+    () => prisma.restDay.delete({ where: { id } }),
+  )
+}
+
+/** Marque un jour comme repos : compte pour le streak de régularité sans être une vraie séance. */
+export async function marquerJourReposAction(date: string) {
+  const userId = await requireUserId()
+  const jour = startOfDay(new Date(date))
+
+  await prisma.restDay.upsert({
+    where: { userId_date: { userId, date: jour } },
+    create: { userId, date: jour },
+    update: {},
+  })
+
+  revalidatePath('/')
 }
