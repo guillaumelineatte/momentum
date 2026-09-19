@@ -123,7 +123,14 @@ export async function demandeReinitialisationAction(
 
     const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
     const lien = `${base}/reinitialiser-mot-de-passe?token=${token}&email=${encodeURIComponent(email)}`
-    await envoyerEmailReinitialisation(email, lien)
+    try {
+      await envoyerEmailReinitialisation(email, lien)
+    } catch (error) {
+      // On log côté serveur pour pouvoir diagnostiquer, mais on ne fait jamais
+      // planter la requête ni varier la réponse : ça reviendrait à révéler que ce
+      // compte existe (un e-mail inconnu, lui, "réussit" toujours silencieusement).
+      console.error('Échec envoi e-mail de réinitialisation:', error)
+    }
   }
 
   redirect('/mot-de-passe-oublie?envoye=1')

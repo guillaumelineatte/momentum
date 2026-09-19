@@ -10,7 +10,7 @@ function getResendClient() {
 
 export async function envoyerEmailReinitialisation(destinataire: string, lienReinitialisation: string) {
   const resend = getResendClient()
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: process.env.EMAIL_FROM ?? 'Momentum <onboarding@resend.dev>',
     to: destinataire,
     subject: 'Réinitialise ton mot de passe Momentum',
@@ -27,4 +27,13 @@ export async function envoyerEmailReinitialisation(destinataire: string, lienRei
       </div>
     `,
   })
+
+  // Le SDK Resend ne lève pas d'exception sur une erreur API : il faut vérifier
+  // `error` explicitement, sinon un échec d'envoi passe silencieusement inaperçu.
+  if (error) {
+    console.error('Échec envoi e-mail Resend:', error)
+    throw new Error(`Échec de l'envoi de l'e-mail : ${error.message}`)
+  }
+
+  return data
 }
