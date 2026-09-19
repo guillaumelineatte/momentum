@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowDownRight, ArrowUpRight, ChevronLeft, Minus } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, ChevronLeft, Minus, Scale } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
@@ -70,7 +70,10 @@ export default async function ResultatComparaisonPage({
       </div>
 
       {rienATrouver ? (
-        <div className="empty-state">Aucune donnée commune entre ces deux jours pour l’instant.</div>
+        <div className="empty-state">
+          <div className="empty-icon"><Scale size={17} /></div>
+          Aucune donnée commune entre ces deux jours pour l’instant.
+        </div>
       ) : (
         <div style={{ maxWidth: 640, margin: '0 auto', width: '100%' }}>
           {groupes.map((groupe) => (

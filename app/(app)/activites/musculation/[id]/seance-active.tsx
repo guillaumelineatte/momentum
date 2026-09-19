@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check,
   ChevronLeft,
@@ -225,7 +226,10 @@ export function SeanceActive({
         ))}
 
         {exercicesAvecSets.length === 0 && exercicesEnAttente.length === 0 && (
-          <div className="empty-state">Ajoute un premier exercice pour commencer ta séance.</div>
+          <div className="empty-state">
+            <div className="empty-icon"><Dumbbell size={17} /></div>
+            Ajoute un premier exercice pour commencer ta séance.
+          </div>
         )}
 
         <button className="ajouter-exercice-btn" onClick={() => setShowPicker(true)}>
@@ -390,6 +394,7 @@ function ExerciceCard({
         note: note || undefined,
       })
       setNote('')
+      try { navigator.vibrate?.(30) } catch {}
       onSerieValidee(dureeRepos)
     } finally {
       setEnCours(false)
@@ -424,20 +429,30 @@ function ExerciceCard({
         <p className="derniere-perf">Dernière fois : <strong>{perf.reps} × {perf.chargeKg} kg</strong></p>
       )}
 
-      {sets.map((s, i) => (
-        <div className={`set-row ${record != null && s.chargeKg > record ? 'record' : ''}`} key={s.id}>
-          <span className="set-numero">#{i + 1}</span>
-          <span className="set-valeurs">
-            <span><b>{s.repetitions}</b> <span>reps</span></span>
-            <span><b>{s.chargeKg}</b> <span>kg</span></span>
-            {s.rpe != null && <span><b>{s.rpe}</b> <span>rpe</span></span>}
-          </span>
-          <span className="set-actions">
-            <button onClick={() => dupliquer(s.id)} aria-label="Dupliquer cette série" title="Dupliquer"><Copy size={14} /></button>
-            <button onClick={() => supprimer(s.id)} aria-label="Supprimer cette série" title="Supprimer" disabled={suppressionId === s.id}><Trash2 size={14} /></button>
-          </span>
-        </div>
-      ))}
+      <AnimatePresence initial={false}>
+        {sets.map((s, i) => (
+          <motion.div
+            key={s.id}
+            layout
+            initial={{ opacity: 0, scale: 0.92, y: -6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className={`set-row ${record != null && s.chargeKg > record ? 'record' : ''}`}
+          >
+            <span className="set-numero">#{i + 1}</span>
+            <span className="set-valeurs">
+              <span><b>{s.repetitions}</b> <span>reps</span></span>
+              <span><b>{s.chargeKg}</b> <span>kg</span></span>
+              {s.rpe != null && <span><b>{s.rpe}</b> <span>rpe</span></span>}
+            </span>
+            <span className="set-actions">
+              <button onClick={() => dupliquer(s.id)} aria-label="Dupliquer cette série" title="Dupliquer"><Copy size={14} /></button>
+              <button onClick={() => supprimer(s.id)} aria-label="Supprimer cette série" title="Supprimer" disabled={suppressionId === s.id}><Trash2 size={14} /></button>
+            </span>
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
       <div className="set-form">
         <div className="stepper-row">
