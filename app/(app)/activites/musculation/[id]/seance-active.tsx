@@ -245,7 +245,7 @@ export function SeanceActive({
                 <h2 style={{ fontSize: 18, margin: 0 }}>Choisir un exercice</h2>
                 <button className="icon-button" onClick={() => setShowPicker(false)} aria-label="Fermer"><X size={18} /></button>
               </div>
-              <div className="exo-picker-search form-field" style={{ marginBottom: 0 }}>
+              <div className="exo-picker-search form-field">
                 <div style={{ position: 'relative' }}>
                   <Search size={16} style={{ position: 'absolute', left: 14, top: 15, color: 'var(--muted-2)' }} />
                   <input
