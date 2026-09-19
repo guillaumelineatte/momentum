@@ -56,6 +56,9 @@ export async function completeOnboardingAction(_prevState: ActionState, formData
 
   const userId = session.user.id
   const user = await prisma.user.findUnique({ where: { id: userId } })
+  // Session valide mais utilisateur supprimé en base -> éviter de planter plus loin
+  // sur une violation de contrainte de clé étrangère (userId inexistant).
+  if (!user) redirect('/api/nettoyer-session')
   const data = parsed.data
   // Normalisé au jour civil (comme toutes les autres écritures de `date` dans l'app) : sinon
   // une mesure ajoutée le même jour via un autre formulaire ne serait jamais reconnue comme

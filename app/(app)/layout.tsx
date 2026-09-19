@@ -11,8 +11,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const session = await auth()
   if (!session?.user?.id) redirect('/connexion')
 
-  const profile = await prisma.profile.findUnique({ where: { userId: session.user.id } })
-  if (!profile) redirect('/onboarding')
+  // Le token de session reste valide même si l'utilisateur qu'il référence a été
+  // supprimé en base (ex. reset de la base de données) : sans ce contrôle, on
+  // renverrait indéfiniment vers /onboarding au lieu de traiter le cas comme
+  // "non connecté".
+  const utilisateur = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { profile: true },
+  })
+  if (!utilisateur) redirect('/api/nettoyer-session')
+  if (!utilisateur.profile) redirect('/onboarding')
 
   return (
     <>
