@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { getRecordsActuels } from '@/lib/data/musculation'
 import { LABELS_TYPE_SEANCE, formatDureeMin } from '@/lib/labels'
 import { formatDateParam } from '@/lib/dates'
+import { CompteurAnime } from '@/components/compteur-anime'
 
 export default async function RecapSeancePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -48,8 +49,8 @@ export default async function RecapSeancePage({ params }: { params: Promise<{ id
 
         <div className="recap-stats">
           <div><strong>{formatDureeMin(seance.dureeSecondes ?? 0)}</strong><span>durée</span></div>
-          <div><strong>{seance.sets.length}</strong><span>séries</span></div>
-          <div><strong>{Math.round(volumeTotal).toLocaleString('fr-FR')}</strong><span>volume (kg)</span></div>
+          <div><strong><CompteurAnime valeur={seance.sets.length} /></strong><span>séries</span></div>
+          <div><strong><CompteurAnime valeur={Math.round(volumeTotal)} /></strong><span>volume (kg)</span></div>
         </div>
 
         {nouveauxRecords.length > 0 && (

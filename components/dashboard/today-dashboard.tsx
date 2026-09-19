@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { DashboardShell } from './dashboard-shell'
 import { Portal } from '@/components/portal'
+import { CompteurAnime } from '@/components/compteur-anime'
 import {
   supprimerSeanceAction,
   supprimerCardioAction,
@@ -114,6 +115,7 @@ export function TodayDashboard({
   useEffect(() => {
     if (!toastAjout) return
     setToast('Activité ajoutée à ta journée')
+    try { navigator.vibrate?.(30) } catch {}
     const url = new URL(window.location.href)
     url.searchParams.delete('ajoute')
     window.history.replaceState({}, '', url)
@@ -169,7 +171,7 @@ export function TodayDashboard({
         {streak > 0 && (
           <div className="streak-pill">
             <Flame size={18} fill="currentColor" />
-            <div><strong>{streak} jour{streak > 1 ? 's' : ''}</strong><span>de régularité</span></div>
+            <div><strong><CompteurAnime valeur={streak} /> jour{streak > 1 ? 's' : ''}</strong><span>de régularité</span></div>
           </div>
         )}
       </div>
@@ -198,7 +200,10 @@ export function TodayDashboard({
 
           <div className="activity-list">
             {activites.length === 0 && (
-              <div className="empty-state">Rien d’enregistré ce jour-là pour l’instant.</div>
+              <div className="empty-state">
+                <div className="empty-icon"><Sparkles size={17} /></div>
+                Rien d’enregistré ce jour-là pour l’instant.
+              </div>
             )}
             {activites.map((activite) => {
               const Icon = ICONES[activite.type]
@@ -242,12 +247,12 @@ export function TodayDashboard({
           <section className="progress-card glass-card">
             <div className="card-heading"><div><p className="eyebrow">PROGRESSION HEBDO</p><h3>{statsSemaine.joursActifs > 0 ? 'Tu es sur la bonne voie' : 'Ta semaine démarre ici'}</h3></div><span className="sparkle"><Sparkles size={16} /></span></div>
             <div className="progress-ring" style={{ background: `conic-gradient(var(--coral) 0 ${statsSemaine.pourcentageSemaine}%, rgba(255,255,255,.1) ${statsSemaine.pourcentageSemaine}% 100%)` }}>
-              <div className="ring-inner"><strong>{statsSemaine.pourcentageSemaine}%</strong><span>jours actifs</span></div>
+              <div className="ring-inner"><strong><CompteurAnime valeur={statsSemaine.pourcentageSemaine} suffixe="%" /></strong><span>jours actifs</span></div>
             </div>
             <div className="progress-stats">
-              <div><strong>{statsSemaine.seances}</strong><span>séances</span></div>
-              <div><strong>{statsSemaine.kmParcourus.toFixed(1).replace('.', ',')}</strong><span>km parcourus</span></div>
-              <div><strong>{statsSemaine.joursActifs}</strong><span>jours actifs</span></div>
+              <div><strong><CompteurAnime valeur={statsSemaine.seances} /></strong><span>séances</span></div>
+              <div><strong><CompteurAnime valeur={statsSemaine.kmParcourus} decimales={1} /></strong><span>km parcourus</span></div>
+              <div><strong><CompteurAnime valeur={statsSemaine.joursActifs} /></strong><span>jours actifs</span></div>
             </div>
           </section>
 

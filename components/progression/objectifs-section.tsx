@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Plus, Trophy } from 'lucide-react'
+import { Plus, Target, Trophy } from 'lucide-react'
 import type { ObjectifAvecProgression } from '@/lib/data/objectifs'
 import { SupprimerObjectifButton } from './supprimer-objectif-button'
 
@@ -7,7 +7,10 @@ export function ObjectifsSection({ objectifs }: { objectifs: ObjectifAvecProgres
   return (
     <div className="goal-cards-grid">
       {objectifs.length === 0 && (
-        <div className="empty-state">Aucun objectif pour l’instant — fixe-toi une cible pour suivre ta progression.</div>
+        <div className="empty-state">
+          <div className="empty-icon"><Target size={17} /></div>
+          Aucun objectif pour l’instant — fixe-toi une cible pour suivre ta progression.
+        </div>
       )}
       {objectifs.map((o) => (
         <article className={`goal-progress-card glass-card ${o.atteint ? 'atteint' : ''}`} key={o.id}>

@@ -1,4 +1,4 @@
-import { Dumbbell, Gauge, Route as RouteIcon } from 'lucide-react'
+import { Dumbbell, Gauge, Route as RouteIcon, Trophy } from 'lucide-react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -37,7 +37,12 @@ export default async function RecordsPage() {
         </div>
       </div>
 
-      {aucunRecord && <div className="empty-state">Aucun record pour l’instant — continue à t’entraîner !</div>}
+      {aucunRecord && (
+        <div className="empty-state">
+          <div className="empty-icon"><Trophy size={17} /></div>
+          Aucun record pour l’instant — continue à t’entraîner !
+        </div>
+      )}
 
       {(recordsCardio.allure5km || recordsCardio.allure10km || recordsCardio.plusLongue) && (
         <>

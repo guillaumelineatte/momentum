@@ -1,4 +1,5 @@
-import { CircleUserRound } from 'lucide-react'
+import Link from 'next/link'
+import { Pencil } from 'lucide-react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -54,13 +55,13 @@ export default async function ProfilPage() {
             )}
           </article>
 
-          <article className="glass-card" style={{ borderRadius: 18, padding: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div className="stub-icon" style={{ margin: 0 }}><CircleUserRound size={22} /></div>
+          <Link href="/profil/modifier" className="glass-card" style={{ borderRadius: 18, padding: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className="stub-icon" style={{ margin: 0 }}><Pencil size={20} /></div>
             <div style={{ flex: 1 }}>
-              <strong style={{ display: 'block', fontSize: 13 }}>Édition du profil</strong>
-              <span style={{ fontSize: 11, color: 'var(--muted)' }}>Bientôt disponible — modification des informations et des mensurations.</span>
+              <strong style={{ display: 'block', fontSize: 13 }}>Modifier mon profil</strong>
+              <span style={{ fontSize: 11, color: 'var(--muted)' }}>Prénom, taille, date de naissance, objectifs.</span>
             </div>
-          </article>
+          </Link>
 
           <form action={deconnexionAction}>
             <button className="form-submit" type="submit">Se déconnecter</button>
