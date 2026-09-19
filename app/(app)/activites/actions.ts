@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { startOfDay, formatDateParam } from '@/lib/dates'
+import { parseDateParam, formatDateParam } from '@/lib/dates'
 import { cardioSchema, mesuresSchema, suiviQuotidienSchema } from '@/lib/validations/activites'
 import type { ActionState } from '@/app/(auth)/actions'
 
@@ -20,10 +20,11 @@ export async function creerCardioAction(_prevState: ActionState, formData: FormD
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Formulaire invalide.' }
 
   const { date, dureeMinutes, ...reste } = parsed.data
+  const jour = parseDateParam(date)
   await prisma.cardioSession.create({
     data: {
       userId,
-      date: new Date(date),
+      date: jour,
       dureeSecondes: Math.round(dureeMinutes * 60),
       type: reste.type as never,
       nomPersonnalise: reste.nomPersonnalise,
@@ -36,7 +37,7 @@ export async function creerCardioAction(_prevState: ActionState, formData: FormD
   })
 
   revalidatePath('/')
-  redirect(`/?date=${formatDateParam(new Date(date))}&ajoute=1`)
+  redirect(`/?date=${formatDateParam(jour)}&ajoute=1`)
 }
 
 export async function creerMesuresAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -45,10 +46,11 @@ export async function creerMesuresAction(_prevState: ActionState, formData: Form
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Formulaire invalide.' }
 
   const { date, ...mesures } = parsed.data
-  await prisma.bodyMeasurement.create({ data: { userId, date: new Date(date), ...mesures } })
+  const jour = parseDateParam(date)
+  await prisma.bodyMeasurement.create({ data: { userId, date: jour, ...mesures } })
 
   revalidatePath('/')
-  redirect(`/?date=${formatDateParam(new Date(date))}&ajoute=1`)
+  redirect(`/?date=${formatDateParam(jour)}&ajoute=1`)
 }
 
 export async function enregistrerSuiviQuotidienAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -57,7 +59,7 @@ export async function enregistrerSuiviQuotidienAction(_prevState: ActionState, f
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Formulaire invalide.' }
 
   const { date, ...donnees } = parsed.data
-  const jour = startOfDay(new Date(date))
+  const jour = parseDateParam(date)
 
   // Un seul suivi quotidien par jour : on met à jour s'il existe déjà (l'utilisateur peut
   // revenir compléter sa journée plus tard sans créer de doublon).
@@ -123,7 +125,7 @@ export async function supprimerReposAction(id: string) {
 /** Marque un jour comme repos : compte pour le streak de régularité sans être une vraie séance. */
 export async function marquerJourReposAction(date: string) {
   const userId = await requireUserId()
-  const jour = startOfDay(new Date(date))
+  const jour = parseDateParam(date)
 
   await prisma.restDay.upsert({
     where: { userId_date: { userId, date: jour } },

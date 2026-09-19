@@ -192,6 +192,7 @@ export function TodayDashboard({
         <section className="main-column">
           <div className="section-title">
             <div><p className="eyebrow">JOUR SÉLECTIONNÉ</p><h2>{jourLabel}</h2></div>
+            <Link href={`/comparer?date=${dateSelectionnee}`} className="compare-button"><ArrowUpRight size={15} /> Comparer</Link>
           </div>
 
           <div className="activity-list">

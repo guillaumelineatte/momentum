@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { onboardingSchema } from '@/lib/validations/onboarding'
+import { startOfDay } from '@/lib/dates'
 import type { ActionState } from '@/app/(auth)/actions'
 
 // Champs scalaires du formulaire, dans l'ordre où ils apparaissent — sert à savoir
@@ -56,7 +57,10 @@ export async function completeOnboardingAction(_prevState: ActionState, formData
   const userId = session.user.id
   const user = await prisma.user.findUnique({ where: { id: userId } })
   const data = parsed.data
-  const dateDepart = new Date()
+  // Normalisé au jour civil (comme toutes les autres écritures de `date` dans l'app) : sinon
+  // une mesure ajoutée le même jour via un autre formulaire ne serait jamais reconnue comme
+  // "plus récente" en cas d'égalité, faute de valeur de `date` strictement comparable.
+  const dateDepart = startOfDay(new Date())
 
   await prisma.$transaction([
     prisma.profile.upsert({

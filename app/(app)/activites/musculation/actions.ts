@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { formatDateParam } from '@/lib/dates'
+import { parseDateParam, formatDateParam } from '@/lib/dates'
 import { demarrerSeanceSchema, creerExerciceSchema, ajouterSerieSchema } from '@/lib/validations/musculation'
 import { getDernieresPerformances, getRecordsActuels } from '@/lib/data/musculation'
 import type { ActionState } from '@/app/(auth)/actions'
@@ -29,7 +29,7 @@ export async function demarrerSeanceAction(_prevState: ActionState, formData: Fo
 
   const { date, type, nomPersonnalise } = parsed.data
   const session = await prisma.workoutSession.create({
-    data: { userId, date: new Date(date), type: type as never, nomPersonnalise },
+    data: { userId, date: parseDateParam(date), type: type as never, nomPersonnalise },
   })
 
   redirect(`/activites/musculation/${session.id}`)
