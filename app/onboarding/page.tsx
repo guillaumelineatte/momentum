@@ -7,9 +7,17 @@ export default async function OnboardingPage() {
   const session = await auth()
   if (!session?.user?.id) redirect('/connexion')
 
+  // Session valide mais utilisateur supprimé en base (ex. reset de la base) -> on
+  // nettoie la session au lieu de planter plus loin sur une contrainte de clé
+  // étrangère lors de la soumission du formulaire.
+  const utilisateur = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { profile: true },
+  })
+  if (!utilisateur) redirect('/api/nettoyer-session')
+
   // Onboarding déjà fait -> pas besoin de repasser par ici.
-  const profile = await prisma.profile.findUnique({ where: { userId: session.user.id } })
-  if (profile) redirect('/')
+  if (utilisateur.profile) redirect('/')
 
   return (
     <main className="onboarding-shell">
