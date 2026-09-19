@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from 'react'
 import { completeOnboardingAction } from './actions'
 import type { ActionState } from '@/app/(auth)/actions'
 import { OBJECTIFS } from '@/lib/validations/onboarding'
+import { Portal } from '@/components/portal'
 
 const CHAMPS_MENSURATIONS = [
   'tourTailleDepartCm',
@@ -138,16 +139,18 @@ export function OnboardingForm() {
       </form>
 
       {demanderConfirmation && (
-        <div className="confirm-backdrop" onClick={() => setDemanderConfirmation(false)}>
-          <div className="confirm-card glass-card" onClick={(event) => event.stopPropagation()}>
-            <h2 style={{ fontSize: 17, margin: '0 0 0' }}>Aucune mensuration renseignée</h2>
-            <p>Tu pourras toujours les ajouter plus tard, mais ton point de départ sera moins précis. Continuer sans les remplir ?</p>
-            <div className="confirm-actions">
-              <button onClick={() => setDemanderConfirmation(false)}>Revenir en arrière</button>
-              <button className="danger" onClick={confirmerEnvoiSansMensurations}>Continuer sans</button>
+        <Portal>
+          <div className="confirm-backdrop" onClick={() => setDemanderConfirmation(false)}>
+            <div className="confirm-card glass-card" onClick={(event) => event.stopPropagation()}>
+              <h2 style={{ fontSize: 17, margin: '0 0 0' }}>Aucune mensuration renseignée</h2>
+              <p>Tu pourras toujours les ajouter plus tard, mais ton point de départ sera moins précis. Continuer sans les remplir ?</p>
+              <div className="confirm-actions">
+                <button onClick={() => setDemanderConfirmation(false)}>Revenir en arrière</button>
+                <button className="danger" onClick={confirmerEnvoiSansMensurations}>Continuer sans</button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </>
   )

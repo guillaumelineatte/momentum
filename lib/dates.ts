@@ -10,6 +10,8 @@ import {
   subDays,
   addMonths,
   subMonths,
+  subWeeks,
+  subYears,
   isSameDay,
   isSameMonth,
   isToday as isTodayFns,
@@ -51,7 +53,7 @@ export function grilleMoisDe(date: Date): Date[] {
   return eachDayOfInterval({ start: debut, end: fin })
 }
 
-export { addDays, subDays, isSameDay, isSameMonth, startOfMonth, endOfMonth, startOfDay, endOfDay }
+export { addDays, subDays, subWeeks, subMonths, subYears, isSameDay, isSameMonth, startOfMonth, endOfMonth, startOfDay, endOfDay, startOfWeek }
 
 export const MONTH_PARAM_FORMAT = 'yyyy-MM'
 

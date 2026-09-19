@@ -26,6 +26,7 @@ import {
   X,
 } from 'lucide-react'
 import { DashboardShell } from './dashboard-shell'
+import { Portal } from '@/components/portal'
 import {
   supprimerSeanceAction,
   supprimerCardioAction,
@@ -265,42 +266,46 @@ export function TodayDashboard({
       <button className="floating-add" onClick={() => setShowAdd(true)} aria-label="Ajouter une activité"><Plus size={25} /></button>
 
       {showAdd && (
-        <div className="modal-backdrop" onClick={() => setShowAdd(false)}>
-          <div className="add-modal glass-card" onClick={(event) => event.stopPropagation()}>
-            <div className="modal-head">
-              <div><p className="eyebrow accent">NOUVELLE ENTRÉE</p><h2>Qu’est-ce que tu as fait ?</h2></div>
-              <button className="icon-button" onClick={() => setShowAdd(false)} aria-label="Fermer"><X size={18} /></button>
-            </div>
-            <div className="activity-options">
-              <AddOption icon={Dumbbell} title="Musculation" subtitle="Séance et séries" href={`/activites/musculation/nouvelle?date=${dateSelectionnee}`} />
-              <AddOption icon={Footprints} title="Course à pied" subtitle="Distance et allure" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=FOOTING`} />
-              <AddOption icon={Waves} title="Autre cardio" subtitle="Vélo, natation…" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=AUTRE`} />
-              <AddOption icon={Scale} title="Mesures" subtitle="Poids et mensurations" href={`/activites/mesures/nouvelle?date=${dateSelectionnee}`} />
-              <AddOption icon={HeartPulse} title="Suivi quotidien" subtitle="Pas, sommeil, hydratation…" href={`/activites/suivi/nouvelle?date=${dateSelectionnee}`} />
-              <button className="add-option" onClick={marquerRepos} disabled={reposEnCours}>
-                <span className="option-icon"><BedDouble size={20} /></span>
-                <span><strong>Jour de repos</strong><small>Compte pour ta régularité</small></span>
-                <ChevronRight size={17} />
-              </button>
+        <Portal>
+          <div className="modal-backdrop" onClick={() => setShowAdd(false)}>
+            <div className="add-modal glass-card" onClick={(event) => event.stopPropagation()}>
+              <div className="modal-head">
+                <div><p className="eyebrow accent">NOUVELLE ENTRÉE</p><h2>Qu’est-ce que tu as fait ?</h2></div>
+                <button className="icon-button" onClick={() => setShowAdd(false)} aria-label="Fermer"><X size={18} /></button>
+              </div>
+              <div className="activity-options">
+                <AddOption icon={Dumbbell} title="Musculation" subtitle="Séance et séries" href={`/activites/musculation/nouvelle?date=${dateSelectionnee}`} />
+                <AddOption icon={Footprints} title="Course à pied" subtitle="Distance et allure" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=FOOTING`} />
+                <AddOption icon={Waves} title="Autre cardio" subtitle="Vélo, natation…" href={`/activites/cardio/nouvelle?date=${dateSelectionnee}&type=AUTRE`} />
+                <AddOption icon={Scale} title="Mesures" subtitle="Poids et mensurations" href={`/activites/mesures/nouvelle?date=${dateSelectionnee}`} />
+                <AddOption icon={HeartPulse} title="Suivi quotidien" subtitle="Pas, sommeil, hydratation…" href={`/activites/suivi/nouvelle?date=${dateSelectionnee}`} />
+                <button className="add-option" onClick={marquerRepos} disabled={reposEnCours}>
+                  <span className="option-icon"><BedDouble size={20} /></span>
+                  <span><strong>Jour de repos</strong><small>Compte pour ta régularité</small></span>
+                  <ChevronRight size={17} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {aSupprimer && (
-        <div className="confirm-backdrop" onClick={() => !suppressionEnCours && setASupprimer(null)}>
-          <div className="confirm-card glass-card" onClick={(event) => event.stopPropagation()}>
-            <Trash2 size={22} style={{ color: 'var(--coral-bright)' }} />
-            <h2 style={{ fontSize: 17, margin: '10px 0 0' }}>Supprimer « {aSupprimer.titre} » ?</h2>
-            <p>Cette action est irréversible.</p>
-            <div className="confirm-actions">
-              <button onClick={() => setASupprimer(null)} disabled={suppressionEnCours}>Annuler</button>
-              <button className="danger" onClick={confirmerSuppression} disabled={suppressionEnCours}>
-                {suppressionEnCours ? 'Suppression…' : 'Supprimer'}
-              </button>
+        <Portal>
+          <div className="confirm-backdrop" onClick={() => !suppressionEnCours && setASupprimer(null)}>
+            <div className="confirm-card glass-card" onClick={(event) => event.stopPropagation()}>
+              <Trash2 size={22} style={{ color: 'var(--coral-bright)' }} />
+              <h2 style={{ fontSize: 17, margin: '10px 0 0' }}>Supprimer « {aSupprimer.titre} » ?</h2>
+              <p>Cette action est irréversible.</p>
+              <div className="confirm-actions">
+                <button onClick={() => setASupprimer(null)} disabled={suppressionEnCours}>Annuler</button>
+                <button className="danger" onClick={confirmerSuppression} disabled={suppressionEnCours}>
+                  {suppressionEnCours ? 'Suppression…' : 'Supprimer'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {toast && <div className="toast"><span><Check size={16} /></span> {toast}</div>}
