@@ -170,7 +170,7 @@ export function TodayDashboard({
         </div>
         {streak > 0 && (
           <div className="streak-pill">
-            <Flame size={18} fill="currentColor" />
+            <Flame size={24} fill="currentColor" />
             <div><strong><CompteurAnime valeur={streak} /> jour{streak > 1 ? 's' : ''}</strong><span>de régularité</span></div>
           </div>
         )}
