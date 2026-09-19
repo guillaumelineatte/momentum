@@ -205,10 +205,12 @@ h1, h2, h3 { font-family: var(--font-display); }
 .exo-picker-groupes button { flex-shrink: 0; height: 34px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--muted); font-size: 12.5px; font-weight: 500; }
 .exo-picker-groupes button.active { background: rgba(240,82,97,.18); border-color: rgba(240,82,97,.5); color: var(--coral-bright); font-weight: 700; }
 .exo-picker-list { overflow-y: auto; flex: 1; padding-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
-.exo-picker-item { width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid transparent; display: flex; align-items: center; justify-content: space-between; text-align: left; font-size: 13px; }
+.exo-picker-item { width: 100%; min-height: 58px; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid transparent; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; font-size: 13px; }
 .exo-picker-item:hover { border-color: rgba(240,82,97,.35); }
-.exo-picker-item small { display: block; color: var(--muted-2); font-size: 10px; margin-top: 2px; }
-.exo-picker-item .frequent { color: var(--gold); font-size: 10px; }
+.exo-picker-item-texte { display: flex; flex-direction: column; gap: 6px; }
+.exo-picker-item-texte strong { font-weight: 600; }
+.exo-picker-item small { display: block; color: var(--foreground); opacity: .55; font-size: 11.5px; letter-spacing: .2px; }
+.exo-picker-item .frequent { flex-shrink: 0; color: var(--gold); font-size: 10px; }
 .exo-picker-creer { margin: 6px 0 18px; padding: 12px; border-radius: 12px; border: 1px dashed var(--line); }
 
 .repos-overlay { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: flex; justify-content: center; padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px)); pointer-events: none; }

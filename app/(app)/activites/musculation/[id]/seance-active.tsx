@@ -269,8 +269,8 @@ export function SeanceActive({
               <div className="exo-picker-list">
                 {bibliothequeFiltree.map((e) => (
                   <button key={e.id} className="exo-picker-item" onClick={() => choisirExercice(e)}>
-                    <span>
-                      {e.nom}
+                    <span className="exo-picker-item-texte">
+                      <strong>{e.nom}</strong>
                       <small>{LABELS_GROUPE.get(e.groupeMusculaire) ?? e.groupeMusculaire}{e.personnalise ? ' · perso' : ''}</small>
                     </span>
                     {exercicesFrequents.includes(e.id) && <span className="frequent">fréquent</span>}
