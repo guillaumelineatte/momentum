@@ -317,6 +317,13 @@ h1, h2, h3 { font-family: var(--font-display); }
 .section-inline-title { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 4px; }
 .section-inline-title h2 { font-size: 17px; margin: 0; }
 
+/* Le <span> rendu par CompteurAnime n'a pas de classe propre à lui hérité du site : un
+ * sélecteur générique ailleurs (ex. ".streak-pill span { font-size: 9px }", pensé pour
+ * une légende) peut le cibler directement et écraser l'héritage voulu depuis son parent
+ * (ex. un <strong> agrandi). !important est volontaire ici : ce composant doit TOUJOURS
+ * se fondre dans son conteneur, quel que soit l'endroit où il est utilisé. */
+.compteur-anime { font-size: inherit !important; color: inherit !important; font-weight: inherit !important; }
+
 /* ———————————————————————————————————————————————— */
 /* Skeletons de chargement */
 /* ———————————————————————————————————————————————— */
