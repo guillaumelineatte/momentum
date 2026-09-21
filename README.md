@@ -18,7 +18,7 @@ pnpm dev
 
 ```bash
 pnpm test        # Vitest : unitaires + intégration (limitation de tentatives, sur DATABASE_URL)
-pnpm test:e2e    # Playwright : parcours complet sur un serveur de test (port 3100)
+pnpm test:e2e    # Playwright : parcours d'authentification, de compte (export, suppression) et des fonctions de l'app, sur un serveur de test (port 3100)
 ```
 
 Les tests e2e créent puis suppriment de vrais comptes : ils tournent sur la base de `DATABASE_URL`.
