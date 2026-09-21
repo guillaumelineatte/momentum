@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { A_COMPLETER, identiteEditeur } from '@/lib/legal'
+import { A_COMPLETER, NOM_EDITEUR, identiteEditeur } from '@/lib/legal'
 
 describe('identiteEditeur', () => {
-  it('lit l\u2019identité dans l\u2019environnement', () => {
-    expect(identiteEditeur({ LEGAL_EDITOR_NAME: ' Alice Martin ', LEGAL_CONTACT_EMAIL: 'contact@ex.fr', LEGAL_EDITOR_ADDRESS: '1 rue X' })).toEqual({
-      nom: 'Alice Martin',
-      email: 'contact@ex.fr',
-      adresse: '1 rue X',
+  it('affiche le nom de l’éditeur et l’adresse de la boîte e-mail de l’application', () => {
+    expect(identiteEditeur({ SMTP_USER: ' contact@exemple.fr ' })).toEqual({
+      nom: NOM_EDITEUR,
+      email: 'contact@exemple.fr',
+      adresse: null,
     })
   })
 
-  it('affiche « [à compléter] » quand une valeur est absente ou vide, et laisse l\u2019adresse facultative', () => {
-    expect(identiteEditeur({})).toEqual({ nom: A_COMPLETER, email: A_COMPLETER, adresse: null })
-    expect(identiteEditeur({ LEGAL_EDITOR_NAME: '  ', LEGAL_CONTACT_EMAIL: '' }).nom).toBe(A_COMPLETER)
+  it('affiche « [à compléter] » pour le contact quand aucune boîte e-mail n’est configurée', () => {
+    expect(identiteEditeur({}).email).toBe(A_COMPLETER)
+    expect(identiteEditeur({ SMTP_USER: '  ' }).email).toBe(A_COMPLETER)
+    expect(identiteEditeur({}).nom).toBe('Guillaume Linéatte') // jamais dépendant de l'environnement
   })
 })
