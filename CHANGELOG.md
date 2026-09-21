@@ -23,6 +23,7 @@
 - `prisma generate` n'exige plus `DATABASE_URL` (l'installation Vercel ne plante plus si la variable manque).
 - `NEXTAUTH_URL` devient optionnelle : repli sur l'URL de l'environnement Vercel (les liens d'e-mail d'une version de test ne pointent jamais sur la production).
 - Fonctions déployées en `fra1`, comme la base Neon.
+- `vercel-build` régénère le client Prisma à chaque build : quand Vercel restaure son cache, `pnpm install` ne relance pas `postinstall` et le client en cache ignorait les nouvelles colonnes du schéma (erreurs TypeScript au build).
 
 ### Ajouté
 - Migrations Prisma (`prisma/migrations`), script `db:deploy`.
