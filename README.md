@@ -46,7 +46,7 @@ pnpm db:deploy    # production : applique les migrations en attente
      - **Sans service d'e-mail, personne ne peut confirmer son adresse** : les nouveaux comptes restent bloqués. Configure le SMTP avant d'ouvrir l'inscription.
      - Sans aucun service, la production **refuse** d'envoyer (un lien de réinitialisation ne doit jamais finir dans les journaux) ; en développement le lien s'affiche dans le terminal.
    - `NEXTAUTH_URL` (optionnel) : URL du site si domaine personnalisé ; sinon l'URL Vercel est détectée automatiquement.
-   - `LEGAL_EDITOR_NAME`, `LEGAL_CONTACT_EMAIL` (et `LEGAL_EDITOR_ADDRESS`, facultative) : identité affichée dans les mentions légales et la politique de confidentialité. Absentes, les pages affichent « [à compléter] » surligné. Un particulier non professionnel peut ne pas publier son adresse (LCEN, art. 6-III-2) s'il l'a communiquée à l'hébergeur.
+   - Pages légales : aucune variable. Nom et e-mail de contact de l'éditeur sont écrits dans `lib/legal.ts`.
    - Ne définis **jamais** `REQUIRE_EMAIL_VERIFICATION=false` en production.
 3. Déployer. `vercel-build` lance `prisma migrate deploy` à chaque build de production **et** de test, chacun sur sa propre base. Les branches poussées (hors `main`) produisent une version de test sur une URL dédiée.
 4. Base de production créée avant les migrations : la migration `0_init` a été déclarée comme déjà appliquée (`prisma migrate resolve --applied 0_init`). Une nouvelle base n'a besoin que du déploiement, puis de `pnpm db:seed` (exercices et badges).
@@ -59,7 +59,7 @@ Les fonctions Vercel tournent en région `fra1` (Francfort), la même que la bas
 L'app stocke des données de santé (poids, mensurations, activité) : elles sont traitées avec le consentement explicite de l'utilisateur.
 
 - **Consentement** : case obligatoire à l'inscription, date enregistrée (`consentementLe`).
-- **Pages légales** : `/confidentialite` et `/mentions-legales` (modèles à faire relire ; identité éditeur par variables d'environnement).
+- **Pages légales** : `/confidentialite` et `/mentions-legales` (modèles à faire relire ; nom et contact de l'éditeur dans `lib/legal.ts`).
 - **Confirmation de l'e-mail** : le compte est inutilisable tant que le lien reçu par e-mail (valable 24 h, à usage unique, stocké haché) n'a pas été confirmé. Les comptes créés avant cette fonction ont été marqués comme confirmés par la migration `conformite`.
 - **Export** : `GET /api/export` (Profil → « Exporter mes données ») télécharge toutes les données en JSON, sans secret.
 - **Suppression du compte** : Profil → « Supprimer mon compte », avec mot de passe et confirmation. Efface le compte et toutes ses données dans une transaction (`lib/data/compte.ts`).

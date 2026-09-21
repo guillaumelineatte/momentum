@@ -4,7 +4,7 @@
 
 ### Conformité (RGPD)
 - Consentement explicite à l'inscription (données de santé), date enregistrée.
-- Pages légales : politique de confidentialité et mentions légales, identité de l'éditeur par variables d'environnement. Liens « Confidentialité · Mentions légales » en pied de page de toute l'application, des pages d'authentification, de l'onboarding et des formulaires (hors écran de séance en cours).
+- Pages légales : politique de confidentialité et mentions légales, identité de l'éditeur (nom et e-mail de contact) écrite en dur dans `lib/legal.ts`, aucune variable à configurer. Liens « Confidentialité · Mentions légales » en pied de page de toute l'application, des pages d'authentification, de l'onboarding et des formulaires (hors écran de séance en cours).
 - Confirmation de l'adresse e-mail avant la première connexion (lien de 24 h, à usage unique, stocké haché). Les comptes existants sont marqués comme confirmés (migration `conformite`).
 - Export des données au format JSON (`/api/export`) et suppression définitive du compte avec ré-authentification.
 - Tests : intégration (jeton de vérification, suppression en cascade, export) et de bout en bout (inscription avec confirmation, export, suppression).
@@ -23,6 +23,7 @@
 - `prisma generate` n'exige plus `DATABASE_URL` (l'installation Vercel ne plante plus si la variable manque).
 - `NEXTAUTH_URL` devient optionnelle : repli sur l'URL de l'environnement Vercel (les liens d'e-mail d'une version de test ne pointent jamais sur la production).
 - Fonctions déployées en `fra1`, comme la base Neon.
+- `vercel-build` régénère le client Prisma à chaque build : quand Vercel restaure son cache, `pnpm install` ne relance pas `postinstall` et le client en cache ignorait les nouvelles colonnes du schéma (erreurs TypeScript au build).
 
 ### Ajouté
 - Migrations Prisma (`prisma/migrations`), script `db:deploy`.

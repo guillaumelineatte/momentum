@@ -1,17 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { A_COMPLETER, identiteEditeur } from '@/lib/legal'
+import { DATE_MISE_A_JOUR, EDITEUR } from '@/lib/legal'
 
-describe('identiteEditeur', () => {
-  it('lit l\u2019identité dans l\u2019environnement', () => {
-    expect(identiteEditeur({ LEGAL_EDITOR_NAME: ' Alice Martin ', LEGAL_CONTACT_EMAIL: 'contact@ex.fr', LEGAL_EDITOR_ADDRESS: '1 rue X' })).toEqual({
-      nom: 'Alice Martin',
-      email: 'contact@ex.fr',
-      adresse: '1 rue X',
-    })
-  })
-
-  it('affiche « [à compléter] » quand une valeur est absente ou vide, et laisse l\u2019adresse facultative', () => {
-    expect(identiteEditeur({})).toEqual({ nom: A_COMPLETER, email: A_COMPLETER, adresse: null })
-    expect(identiteEditeur({ LEGAL_EDITOR_NAME: '  ', LEGAL_CONTACT_EMAIL: '' }).nom).toBe(A_COMPLETER)
+describe('identité de l’éditeur', () => {
+  it('est renseignée : aucun texte à compléter ne doit atteindre une page publique', () => {
+    expect(EDITEUR.nom.trim()).not.toBe('')
+    expect(EDITEUR.email).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    expect(JSON.stringify(EDITEUR) + DATE_MISE_A_JOUR).not.toMatch(/à compléter|\[|\]/i)
   })
 })

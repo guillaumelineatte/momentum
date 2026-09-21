@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { PageLegale, Valeur } from '@/components/legal/page-legale'
-import { identiteEditeur } from '@/lib/legal'
+import { PageLegale } from '@/components/legal/page-legale'
+import { EDITEUR } from '@/lib/legal'
 
 export const metadata: Metadata = { title: 'Politique de confidentialité — Momentum' }
 
 export default function ConfidentialitePage() {
-  const editeur = identiteEditeur()
-
   return (
     <PageLegale titre="Politique de confidentialité">
       <p>
@@ -17,8 +15,8 @@ export default function ConfidentialitePage() {
 
       <h2>1. Qui est responsable de tes données ?</h2>
       <p>
-        <Valeur>{editeur.nom}</Valeur>, éditeur de Momentum. Pour toute question ou pour exercer tes droits :{' '}
-        <Valeur>{editeur.email}</Valeur>.
+        {EDITEUR.nom}, éditeur de Momentum. Pour toute question ou pour exercer tes droits :{' '}
+        <a href={`mailto:${EDITEUR.email}`}>{EDITEUR.email}</a>.
       </p>
 
       <h2>2. Les données que Momentum enregistre</h2>
@@ -71,7 +69,7 @@ export default function ConfidentialitePage() {
         <li><strong>Accès et portabilité</strong> : dans <Link href="/profil">Profil</Link>, « Exporter mes données » télécharge tout ce qui te concerne au format JSON.</li>
         <li><strong>Rectification</strong> : dans <Link href="/profil/modifier">Profil → Modifier mon profil</Link>.</li>
         <li><strong>Effacement</strong> : dans Profil, « Supprimer mon compte » efface immédiatement et définitivement ton compte et toutes tes données.</li>
-        <li><strong>Opposition, limitation, retrait du consentement</strong> : écris à <Valeur>{editeur.email}</Valeur>.</li>
+        <li><strong>Opposition, limitation, retrait du consentement</strong> : écris à <a href={`mailto:${EDITEUR.email}`}>{EDITEUR.email}</a>.</li>
         <li><strong>Réclamation</strong> : tu peux saisir la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noreferrer">cnil.fr</a>) si tu estimes que tes droits ne sont pas respectés.</li>
       </ul>
 
