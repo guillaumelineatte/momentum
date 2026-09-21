@@ -27,6 +27,7 @@ export async function inscrire(page: Page, email: string, prenom = 'Testeur') {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Mot de passe', { exact: true }).fill(MOT_DE_PASSE)
   await page.getByLabel('Confirmer le mot de passe').fill(MOT_DE_PASSE)
+  await page.getByLabel(/politique de confidentialité/).check()
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
   await page.waitForURL('**/onboarding')
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState, useEffect, useState } from 'react'
 import { inscriptionAction, type ActionState } from '../actions'
 
@@ -79,6 +80,24 @@ export function InscriptionForm() {
           aria-invalid={!!erreurs.confirmPassword}
         />
         {erreurs.confirmPassword && <p className="field-error" role="alert">{erreurs.confirmPassword}</p>}
+      </div>
+
+      <div className="form-field">
+        <label className="consent-row" htmlFor="consentement">
+          <input
+            type="checkbox"
+            id="consentement"
+            name="consentement"
+            defaultChecked={valeurs.consentement === 'on'}
+            aria-invalid={!!erreurs.consentement}
+          />
+          <span>
+            J’ai lu la <Link href="/confidentialite" target="_blank">politique de confidentialité</Link> et j’accepte
+            que mes données de santé (poids, mensurations, activité sportive) soient enregistrées pour faire
+            fonctionner mon suivi.
+          </span>
+        </label>
+        {erreurs.consentement && <p className="field-error" role="alert">{erreurs.consentement}</p>}
       </div>
 
       <button className="form-submit" type="submit" disabled={pending}>

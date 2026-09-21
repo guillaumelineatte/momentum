@@ -8,6 +8,7 @@ import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { deconnexionAction } from '@/app/(auth)/actions'
 import { OBJECTIFS } from '@/lib/validations/onboarding'
 import { labelJourLongAvecAnnee } from '@/lib/dates'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ProfilPage() {
   const session = await auth()
@@ -66,6 +67,8 @@ export default async function ProfilPage() {
           <form action={deconnexionAction}>
             <button className="form-submit" type="submit">Se déconnecter</button>
           </form>
+
+          <LiensLegaux />
         </section>
       </div>
     </DashboardShell>

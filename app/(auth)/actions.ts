@@ -70,6 +70,7 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
     email: String(formData.get('email') ?? ''),
     password: String(formData.get('password') ?? ''),
     confirmPassword: String(formData.get('confirmPassword') ?? ''),
+    consentement: formData.get('consentement') === 'on' ? 'on' : '',
   }
 
   const parsed = inscriptionSchema.safeParse(brut)
@@ -83,6 +84,7 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
     for (const champ of CHAMPS_RECONDUCTIBLES) {
       if (!fieldErrors[champ]) values[champ] = brut[champ]
     }
+    if (brut.consentement) values.consentement = brut.consentement
     return { fieldErrors, values }
   }
 
@@ -101,7 +103,7 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
 
   const passwordHash = await hashPassword(password)
   await prisma.user.create({
-    data: { name: prenom, email, passwordHash },
+    data: { name: prenom, email, passwordHash, consentementLe: new Date() },
   })
 
   try {

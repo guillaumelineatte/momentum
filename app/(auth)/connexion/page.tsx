@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 import { ConnexionForm } from './connexion-form'
 
 export default async function ConnexionPage({
@@ -30,6 +31,7 @@ export default async function ConnexionPage({
           <Link href="/mot-de-passe-oublie">Mot de passe oublié ?</Link>
           <span>Pas encore de compte ? <Link href="/inscription">Créer un compte</Link></span>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

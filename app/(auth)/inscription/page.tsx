@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 import { InscriptionForm } from './inscription-form'
 
 export default function InscriptionPage() {
@@ -19,6 +20,7 @@ export default function InscriptionPage() {
         <div className="auth-links">
           <span>Déjà un compte ? <Link href="/connexion">Se connecter</Link></span>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

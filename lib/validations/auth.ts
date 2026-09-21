@@ -25,6 +25,7 @@ export const inscriptionSchema = z
       .refine((valeur) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valeur), 'Cette adresse e-mail ne semble pas valide.'),
     password: z.string().min(8, 'Ton mot de passe doit contenir au moins 8 caractères.'),
     confirmPassword: z.string().min(1, 'Merci de confirmer ton mot de passe.'),
+    consentement: z.string().refine((valeur) => valeur === 'on', 'Tu dois accepter la politique de confidentialité pour créer ton compte.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Les deux mots de passe ne sont pas identiques.',

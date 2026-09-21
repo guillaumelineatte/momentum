@@ -22,6 +22,9 @@ export const authConfig = {
         pathname.startsWith('/mot-de-passe-oublie') ||
         pathname.startsWith('/reinitialiser-mot-de-passe')
 
+      // Pages légales : lisibles sans compte (obligatoire, et nécessaire avant de s'inscrire).
+      if (pathname === '/confidentialite' || pathname === '/mentions-legales') return true
+
       if (isAuthRoute) {
         // Déjà connecté -> inutile de revoir les écrans d'auth.
         if (isLoggedIn) return Response.redirect(new URL('/', request.nextUrl))

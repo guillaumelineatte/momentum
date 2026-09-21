@@ -24,6 +24,28 @@ test('les pages protégées redirigent vers la connexion', async ({ page }) => {
   await expect(page).toHaveURL(/\/connexion/)
 })
 
+test('les pages légales sont lisibles sans compte', async ({ page }) => {
+  await page.goto('/confidentialite')
+  await expect(page).toHaveURL(/\/confidentialite$/)
+  await expect(page.getByRole('heading', { name: 'Politique de confidentialité' })).toBeVisible()
+  await expect(page.getByText('données de santé').first()).toBeVisible()
+
+  await page.goto('/mentions-legales')
+  await expect(page).toHaveURL(/\/mentions-legales$/)
+  await expect(page.getByRole('heading', { name: 'Mentions légales' })).toBeVisible()
+})
+
+test("l'inscription exige d'accepter la politique de confidentialité", async ({ page }) => {
+  await page.goto('/inscription')
+  await page.getByLabel('Prénom').fill('Sans consentement')
+  await page.getByLabel('E-mail').fill(emailUnique('sanscons'))
+  await page.getByLabel('Mot de passe', { exact: true }).fill(MOT_DE_PASSE)
+  await page.getByLabel('Confirmer le mot de passe').fill(MOT_DE_PASSE)
+  await page.getByRole('button', { name: 'Créer mon compte' }).click()
+  await expect(page.getByText('Tu dois accepter la politique de confidentialité')).toBeVisible()
+  await expect(page).toHaveURL(/\/inscription/)
+})
+
 test('inscription, onboarding, déconnexion puis reconnexion', async ({ page }) => {
   const email = emailUnique()
   emails.push(email)
@@ -53,6 +75,7 @@ test('une inscription avec un e-mail déjà utilisé est refusée', async ({ pag
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Mot de passe', { exact: true }).fill(MOT_DE_PASSE)
   await page.getByLabel('Confirmer le mot de passe').fill(MOT_DE_PASSE)
+  await page.getByLabel(/politique de confidentialité/).check()
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
   await expect(page.getByText('Un compte existe déjà')).toBeVisible()
 })
