@@ -82,6 +82,16 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+// Compteurs de tentatives (connexion, inscription, mot de passe oublié). En base plutôt qu'en
+// mémoire : en serverless, chaque requête peut tomber sur une instance différente.
+model RateLimit {
+  key         String   @id // ex: "connexion:ip:1.2.3.4"
+  count       Int      @default(1)
+  windowStart DateTime @default(now())
+
+  @@map("rate_limits")
+}
+
 // ————————————————————————————————————————————————
 // Domaine Momentum
 // ————————————————————————————————————————————————
