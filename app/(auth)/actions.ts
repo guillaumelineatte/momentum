@@ -6,6 +6,7 @@ import { AuthError } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/password'
 import { hashToken } from '@/lib/token'
+import { urlPublique } from '@/lib/url'
 import { ipClient, messageAttente, verifierLimites } from '@/lib/rate-limit'
 import { envoyerEmailReinitialisation } from '@/lib/email'
 import { signIn, signOut } from '@/auth'
@@ -141,8 +142,7 @@ export async function demandeReinitialisationAction(
     await prisma.verificationToken.deleteMany({ where: { identifier: email } })
     await prisma.verificationToken.create({ data: { identifier: email, token: hashToken(token), expires } })
 
-    const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
-    const lien = `${base}/reinitialiser-mot-de-passe?token=${token}&email=${encodeURIComponent(email)}`
+    const lien = `${urlPublique()}/reinitialiser-mot-de-passe?token=${token}&email=${encodeURIComponent(email)}`
     try {
       await envoyerEmailReinitialisation(email, lien)
     } catch (error) {

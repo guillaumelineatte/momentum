@@ -2,6 +2,12 @@
 
 ## [Non publié]
 
+### Déploiement Vercel
+- Les migrations Prisma s'appliquent automatiquement au build de production (`vercel-build`).
+- `prisma generate` n'exige plus `DATABASE_URL` (l'installation Vercel ne plante plus si la variable manque).
+- `NEXTAUTH_URL` devient optionnelle : repli sur l'URL de production fournie par Vercel.
+- Fonctions déployées en `fra1`, comme la base Neon.
+
 ### Ajouté
 - Migrations Prisma (`prisma/migrations`), script `db:deploy`.
 - Limitation de tentatives (connexion, inscription, mot de passe oublié), stockée en base.
