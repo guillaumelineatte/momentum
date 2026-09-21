@@ -36,13 +36,13 @@ pnpm db:deploy    # production : applique les migrations en attente
 ## Déploiement (Vercel + Neon)
 
 1. Sur vercel.com/new, importer le dépôt (Next.js détecté automatiquement).
-2. Variables d'environnement (Production) :
-   - `DATABASE_URL` : chaîne pooled de la branche Neon `production`
+2. Deux environnements Vercel, deux bases Neon : **Production** (branche `production`) et **Preview** = version de test (branche `dev`). Chacun a sa propre `DATABASE_URL` et son propre `AUTH_SECRET`. Variables :
+   - `DATABASE_URL` : chaîne pooled de la branche Neon correspondante
    - `AUTH_SECRET` : `openssl rand -base64 32`
    - `RESEND_API_KEY`
    - `EMAIL_FROM` (optionnel) : par défaut `Momentum <onboarding@resend.dev>` ; avec cette adresse, Resend n'envoie qu'au propriétaire du compte. Pour tous les utilisateurs, vérifier un domaine sur resend.com/domains et utiliser une adresse de ce domaine.
    - `NEXTAUTH_URL` (optionnel) : URL du site si domaine personnalisé ; sinon l'URL Vercel est détectée automatiquement.
-3. Déployer. Les migrations sont appliquées automatiquement à chaque build de **production** (`vercel-build` lance `prisma migrate deploy`) ; les déploiements de test ne touchent pas à la base.
+3. Déployer. `vercel-build` lance `prisma migrate deploy` à chaque build de production **et** de test, chacun sur sa propre base. Les branches poussées (hors `main`) produisent une version de test sur une URL dédiée.
 4. Base de production créée avant les migrations : la migration `0_init` a été déclarée comme déjà appliquée (`prisma migrate resolve --applied 0_init`). Une nouvelle base n'a besoin que du déploiement, puis de `pnpm db:seed` (exercices et badges).
 5. Vérifier : inscription, onboarding, une séance, « mot de passe oublié ».
 

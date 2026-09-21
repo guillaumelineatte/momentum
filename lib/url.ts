@@ -1,11 +1,12 @@
 /**
  * URL publique du site, sans slash final (sert aux liens envoyés par e-mail).
- * NEXTAUTH_URL si définie ; sinon l'URL de production fournie automatiquement par Vercel,
- * ce qui évite d'avoir à la deviner avant le premier déploiement ; sinon localhost.
+ * NEXTAUTH_URL si définie ; sinon, sur Vercel, l'URL du bon environnement — celle de production
+ * en production, celle du déploiement en test (un lien de test ne doit jamais pointer sur la prod) ;
+ * sinon localhost.
  */
 export function urlPublique(env: Record<string, string | undefined> = process.env): string {
-  const url =
-    env.NEXTAUTH_URL ||
-    (env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000')
+  const hoteVercel =
+    env.VERCEL_ENV === 'production' ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_BRANCH_URL || env.VERCEL_URL
+  const url = env.NEXTAUTH_URL || (hoteVercel ? `https://${hoteVercel}` : 'http://localhost:3000')
   return url.replace(/\/+$/, '')
 }
