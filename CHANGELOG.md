@@ -2,6 +2,9 @@
 
 ## [Non publié]
 
+### Sécurité des bases
+- Garde-fou `lib/garde-base.ts` : une version de test ou un serveur local ne peut plus se connecter à la base de production, ni la production à la base de dev (vérifié au démarrage et avant chaque build Vercel).
+
 ### Déploiement Vercel
 - Deux environnements : production (branche Neon `production`) et test/Preview (branche `dev`). Les migrations Prisma s'appliquent automatiquement à chaque build (`vercel-build`), sur la base de l'environnement concerné.
 - `prisma generate` n'exige plus `DATABASE_URL` (l'installation Vercel ne plante plus si la variable manque).
