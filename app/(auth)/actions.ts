@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { AuthError } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/password'
+import { hashToken } from '@/lib/token'
+import { ipClient, messageAttente, verifierLimites } from '@/lib/rate-limit'
 import { envoyerEmailReinitialisation } from '@/lib/email'
 import { signIn, signOut } from '@/auth'
 import {
@@ -35,6 +37,13 @@ export async function connexionAction(_prevState: ActionState, formData: FormDat
   const email = String(formData.get('email') ?? '')
   const parsed = connexionSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'Adresse e-mail ou mot de passe invalide.', values: { email } }
+
+  const ip = await ipClient()
+  const limite = await verifierLimites([
+    [`connexion:ip:${ip}`, { max: 30, fenetreSecondes: 15 * 60 }],
+    [`connexion:email:${parsed.data.email.toLowerCase()}`, { max: 10, fenetreSecondes: 15 * 60 }],
+  ])
+  if (!limite.autorise) return { error: messageAttente(limite.reessayerDansSecondes), values: { email } }
 
   try {
     await signIn('credentials', {
@@ -78,6 +87,9 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
 
   const { prenom, email, password } = parsed.data
 
+  const limite = await verifierLimites([[`inscription:ip:${await ipClient()}`, { max: 10, fenetreSecondes: 60 * 60 }]])
+  if (!limite.autorise) return { error: messageAttente(limite.reessayerDansSecondes), values: { prenom, email } }
+
   const utilisateurExistant = await prisma.user.findUnique({ where: { email } })
   if (utilisateurExistant) {
     return {
@@ -111,7 +123,15 @@ export async function demandeReinitialisationAction(
   if (!parsed.success) return { error: 'Adresse e-mail invalide.' }
 
   const { email } = parsed.data
-  const user = await prisma.user.findUnique({ where: { email } })
+
+  // Limite silencieuse (même redirection qu'un succès) : afficher une erreur ici
+  // révélerait qu'un compte existe pour cette adresse. Elle empêche surtout de spammer
+  // la boîte mail d'un tiers et d'épuiser le quota d'envoi Resend.
+  const limite = await verifierLimites([
+    [`reset:ip:${await ipClient()}`, { max: 10, fenetreSecondes: 60 * 60 }],
+    [`reset:email:${email.toLowerCase()}`, { max: 3, fenetreSecondes: 60 * 60 }],
+  ])
+  const user = limite.autorise ? await prisma.user.findUnique({ where: { email } }) : null
 
   // On ne révèle jamais si l'e-mail existe ou non (évite l'énumération de comptes).
   if (user) {
@@ -119,7 +139,7 @@ export async function demandeReinitialisationAction(
     const expires = new Date(Date.now() + 1000 * 60 * 60) // 1h
 
     await prisma.verificationToken.deleteMany({ where: { identifier: email } })
-    await prisma.verificationToken.create({ data: { identifier: email, token, expires } })
+    await prisma.verificationToken.create({ data: { identifier: email, token: hashToken(token), expires } })
 
     const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
     const lien = `${base}/reinitialiser-mot-de-passe?token=${token}&email=${encodeURIComponent(email)}`
@@ -151,7 +171,7 @@ export async function reinitialiserMotDePasseAction(
   }
 
   const verification = await prisma.verificationToken.findUnique({
-    where: { identifier_token: { identifier: email, token: parsed.data.token } },
+    where: { identifier_token: { identifier: email, token: hashToken(parsed.data.token) } },
   })
 
   if (!verification || verification.expires < new Date()) {
@@ -161,7 +181,7 @@ export async function reinitialiserMotDePasseAction(
   const passwordHash = await hashPassword(parsed.data.password)
   await prisma.user.update({ where: { email }, data: { passwordHash } })
   await prisma.verificationToken.delete({
-    where: { identifier_token: { identifier: email, token: parsed.data.token } },
+    where: { identifier_token: { identifier: email, token: hashToken(parsed.data.token) } },
   })
 
   redirect('/connexion?reinitialise=1')
