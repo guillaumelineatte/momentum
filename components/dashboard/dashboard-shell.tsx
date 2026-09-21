@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { BarChart3, CalendarDays, CircleUserRound, Flame, LogOut, Settings2, Zap } from 'lucide-react'
 import { deconnexionAction } from '@/app/(auth)/actions'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 const NAV_ITEMS = [
   { label: 'Aujourd’hui', href: '/', icon: Zap },
@@ -73,6 +74,10 @@ export function DashboardShell({
         </header>
 
         {children}
+
+        <footer className="legal-footer">
+          <LiensLegaux />
+        </footer>
       </section>
 
       <div className="bottom-nav">

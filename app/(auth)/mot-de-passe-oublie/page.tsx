@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { MotDePasseOublieForm } from './mot-de-passe-oublie-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function MotDePasseOubliePage({
   searchParams,
@@ -31,6 +32,7 @@ export default async function MotDePasseOubliePage({
         <div className="auth-links">
           <Link href="/connexion">Retour à la connexion</Link>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

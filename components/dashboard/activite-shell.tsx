@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { labelJourLong, parseDateParam } from '@/lib/dates'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export function ActiviteShell({
   date,
@@ -26,6 +27,7 @@ export function ActiviteShell({
         <h1>{titre}</h1>
         {sousTitre && <p className="auth-subtitle">{sousTitre}</p>}
         {children}
+        <LiensLegaux />
       </div>
     </main>
   )

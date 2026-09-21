@@ -125,6 +125,9 @@ test.describe.serial('fonctions de l’application', () => {
       expect(reponse?.status(), chemin).toBeLessThan(400)
       await expect(page.getByText(/Une erreur est survenue|Application error|Internal Server Error/i), chemin).toHaveCount(0)
       await expect(page.locator('h1').first(), chemin).toBeVisible()
+      // Mentions légales et confidentialité : accessibles depuis chaque page de l'application.
+      await expect(page.getByRole('link', { name: 'Mentions légales' }), chemin).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Confidentialité' }), chemin).toBeVisible()
     }
   })
 

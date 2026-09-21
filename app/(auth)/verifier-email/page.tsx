@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ConfirmerForm } from './confirmer-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 // La confirmation est un bouton (requête POST) et non l'ouverture directe du lien : les antivirus et
 // les messageries ouvrent parfois les liens d'un e-mail à l'avance, ce qui consommerait le jeton.
@@ -33,6 +34,7 @@ export default async function VerifierEmailPage({
         <div className="auth-links">
           <Link href="/connexion">Retour à la connexion</Link>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

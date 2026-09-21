@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getExercicesAvecHistorique } from '@/lib/data/progression'
 import { NouvelObjectifForm } from './nouvel-objectif-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function NouvelObjectifPage() {
   const session = await auth()
@@ -22,6 +23,7 @@ export default async function NouvelObjectifPage() {
         <h1>Nouvel objectif</h1>
         <p className="auth-subtitle">Fixe-toi une cible claire — on calcule la progression depuis maintenant.</p>
         <NouvelObjectifForm exercices={exercices} />
+        <LiensLegaux />
       </div>
     </main>
   )

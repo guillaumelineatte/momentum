@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { RenvoyerForm } from './renvoyer-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ConfirmationInscriptionPage({
   searchParams,
@@ -34,6 +35,7 @@ export default async function ConfirmationInscriptionPage({
         <div className="auth-links">
           <Link href="/connexion">Retour à la connexion</Link>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

@@ -8,7 +8,6 @@ import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { deconnexionAction } from '@/app/(auth)/actions'
 import { OBJECTIFS } from '@/lib/validations/onboarding'
 import { labelJourLongAvecAnnee } from '@/lib/dates'
-import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ProfilPage() {
   const session = await auth()
@@ -80,7 +79,6 @@ export default async function ProfilPage() {
             <Trash2 size={14} /> Supprimer mon compte
           </Link>
 
-          <LiensLegaux />
         </section>
       </div>
     </DashboardShell>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ReinitialiserForm } from './reinitialiser-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ReinitialiserMotDePassePage({
   searchParams,
@@ -31,6 +32,7 @@ export default async function ReinitialiserMotDePassePage({
         <div className="auth-links">
           <Link href="/mot-de-passe-oublie">Renvoyer un lien</Link>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

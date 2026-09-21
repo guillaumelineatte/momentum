@@ -5,6 +5,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getMemeSeancePrecedente } from '@/lib/data/comparaison'
 import { parseDateParam, formatDateParam, subDays, labelJourLong, isSameDay } from '@/lib/dates'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ComparerPage({
   searchParams,
@@ -75,6 +76,8 @@ export default async function ComparerPage({
         <Link href={`/calendrier?pour=comparer&apres=${dateApresParam}`} className="compare-calendrier-link">
           <CalendarDays size={16} /> Choisir un autre jour dans le calendrier
         </Link>
+
+        <LiensLegaux />
       </div>
     </main>
   )

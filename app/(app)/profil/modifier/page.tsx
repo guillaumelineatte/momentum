@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { ModifierProfilForm } from './modifier-profil-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function ModifierProfilPage() {
   const session = await auth()
@@ -32,6 +33,7 @@ export default async function ModifierProfilPage() {
             objectifs: profile.objectifs,
           }}
         />
+        <LiensLegaux />
       </div>
     </main>
   )
