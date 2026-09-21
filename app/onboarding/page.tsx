@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { OnboardingForm } from './onboarding-form'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 
 export default async function OnboardingPage() {
   const session = await auth()
@@ -34,6 +35,7 @@ export default async function OnboardingPage() {
         </p>
 
         <OnboardingForm />
+        <LiensLegaux />
       </div>
     </main>
   )

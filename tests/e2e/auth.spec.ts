@@ -2,8 +2,11 @@ import { expect, test } from '@playwright/test'
 import { hashToken } from '../../lib/token'
 import {
   MOT_DE_PASSE,
+  definirJetonDeConfirmation,
   emailUnique,
   inscrire,
+  remplirInscription,
+  seConnecter,
   prisma,
   reinitialiserLimites,
   supprimerUtilisateur,
@@ -22,6 +25,28 @@ test.afterAll(async () => {
 test('les pages protégées redirigent vers la connexion', async ({ page }) => {
   await page.goto('/profil')
   await expect(page).toHaveURL(/\/connexion/)
+})
+
+test('les pages légales sont lisibles sans compte', async ({ page }) => {
+  await page.goto('/confidentialite')
+  await expect(page).toHaveURL(/\/confidentialite$/)
+  await expect(page.getByRole('heading', { name: 'Politique de confidentialité' })).toBeVisible()
+  await expect(page.getByText('données de santé').first()).toBeVisible()
+
+  await page.goto('/mentions-legales')
+  await expect(page).toHaveURL(/\/mentions-legales$/)
+  await expect(page.getByRole('heading', { name: 'Mentions légales' })).toBeVisible()
+})
+
+test("l'inscription exige d'accepter la politique de confidentialité", async ({ page }) => {
+  await page.goto('/inscription')
+  await page.getByLabel('Prénom').fill('Sans consentement')
+  await page.getByLabel('E-mail').fill(emailUnique('sanscons'))
+  await page.getByLabel('Mot de passe', { exact: true }).fill(MOT_DE_PASSE)
+  await page.getByLabel('Confirmer le mot de passe').fill(MOT_DE_PASSE)
+  await page.getByRole('button', { name: 'Créer mon compte' }).click()
+  await expect(page.getByText('Tu dois accepter la politique de confidentialité')).toBeVisible()
+  await expect(page).toHaveURL(/\/inscription/)
 })
 
 test('inscription, onboarding, déconnexion puis reconnexion', async ({ page }) => {
@@ -53,6 +78,7 @@ test('une inscription avec un e-mail déjà utilisé est refusée', async ({ pag
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Mot de passe', { exact: true }).fill(MOT_DE_PASSE)
   await page.getByLabel('Confirmer le mot de passe').fill(MOT_DE_PASSE)
+  await page.getByLabel(/politique de confidentialité/).check()
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
   await expect(page.getByText('Un compte existe déjà')).toBeVisible()
 })
@@ -122,4 +148,64 @@ test('la réinitialisation de mot de passe fonctionne avec le jeton haché', asy
   await page.getByLabel('Mot de passe').fill('Nouveau-mdp-e2e-2')
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await page.waitForURL((url) => url.pathname === '/')
+})
+
+test("la confirmation de l'adresse e-mail est exigée avant la première connexion", async ({ page }) => {
+  const email = emailUnique('verif')
+  emails.push(email)
+  await remplirInscription(page, email, 'Vérif')
+
+  // La page explique quoi faire, et le jeton en base est bien une empreinte (jamais le lien en clair).
+  await expect(page.getByRole('heading', { name: 'Vérifie ta boîte mail' })).toBeVisible()
+  await expect(page.getByText(email)).toBeVisible()
+  const enBase = await prisma.verificationToken.findFirst({ where: { identifier: `verif:${email}` } })
+  expect(enBase?.token).toMatch(/^[0-9a-f]{64}$/)
+  expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBeNull()
+
+  // Connexion refusée tant que l'adresse n'est pas confirmée (mot de passe pourtant correct).
+  await seConnecter(page, email)
+  await expect(page.getByText('Confirme d’abord ton adresse e-mail')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Renvoyer l’e-mail de confirmation' })).toBeVisible()
+
+  // Un mauvais mot de passe ne révèle rien : même message que pour un compte inexistant.
+  await seConnecter(page, email, 'mauvais-mot-de-passe')
+  await expect(page.getByText('Adresse e-mail ou mot de passe incorrect.')).toBeVisible()
+
+  // Le lien de l'e-mail : un bouton de confirmation, puis retour à la connexion.
+  const jeton = 'e2e-confirm-' + 'b'.repeat(52)
+  await definirJetonDeConfirmation(email, jeton)
+  await page.goto(`/verifier-email?token=${jeton}&email=${encodeURIComponent(email)}`)
+  await page.getByRole('button', { name: 'Confirmer mon adresse' }).click()
+  await page.waitForURL(/\/connexion\?verifie=1/)
+  await expect(page.getByText('Adresse confirmée')).toBeVisible()
+
+  await seConnecter(page, email)
+  await page.waitForURL('**/onboarding')
+
+  // Le jeton est à usage unique.
+  expect(await prisma.verificationToken.count({ where: { identifier: `verif:${email}` } })).toBe(0)
+})
+
+test('un lien de confirmation invalide propose d’en recevoir un nouveau', async ({ page }) => {
+  await page.goto('/verifier-email?token=faux&email=personne%40example.test')
+  await page.getByRole('button', { name: 'Confirmer mon adresse' }).click()
+  await expect(page.getByText('Ce lien a expiré ou n’est plus valable')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Recevoir un nouveau lien' })).toBeVisible()
+
+  await page.goto('/verifier-email') // lien incomplet
+  await expect(page.getByText('Ce lien est incomplet')).toBeVisible()
+})
+
+test('le renvoi de l’e-mail de confirmation remplace le lien précédent', async ({ page }) => {
+  const email = emailUnique('renvoi')
+  emails.push(email)
+  await remplirInscription(page, email)
+  const avant = await prisma.verificationToken.findFirstOrThrow({ where: { identifier: `verif:${email}` } })
+
+  await page.getByRole('button', { name: 'Renvoyer l’e-mail' }).click()
+  await expect(page.getByText('un nouveau lien vient d’être envoyé')).toBeVisible()
+
+  const lignes = await prisma.verificationToken.findMany({ where: { identifier: `verif:${email}` } })
+  expect(lignes).toHaveLength(1)
+  expect(lignes[0].token).not.toBe(avant.token)
 })

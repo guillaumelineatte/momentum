@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState, useEffect, useState } from 'react'
 import { connexionAction, type ActionState } from '../actions'
 
@@ -16,6 +17,11 @@ export function ConnexionForm() {
   return (
     <form action={formAction} noValidate key={tentative}>
       {state?.error && <p className="form-error" role="alert">{state.error}</p>}
+      {state?.code === 'email_non_verifie' && (
+        <p className="form-hint">
+          <Link href={`/inscription/confirmation?email=${encodeURIComponent(state.values?.email ?? '')}`}>Renvoyer l’e-mail de confirmation</Link>
+        </p>
+      )}
 
       <div className="form-field">
         <label htmlFor="email">E-mail</label>

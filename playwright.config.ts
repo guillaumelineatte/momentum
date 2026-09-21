@@ -20,7 +20,16 @@ export default defineConfig({
     url: `http://localhost:${PORT}/connexion`,
     reuseExistingServer: true,
     // Auth.js construit ses redirections à partir de cette URL : elle doit viser le serveur de test.
-    env: { NEXTAUTH_URL: `http://localhost:${PORT}`, AUTH_URL: `http://localhost:${PORT}` },
+    env: {
+      NEXTAUTH_URL: `http://localhost:${PORT}`,
+      AUTH_URL: `http://localhost:${PORT}`,
+      // Aucun vrai e-mail pendant les tests : sans service configuré, le serveur de développement
+      // affiche simplement le message dans son terminal.
+      SMTP_HOST: '',
+      SMTP_USER: '',
+      SMTP_PASSWORD: '',
+      RESEND_API_KEY: '',
+    },
     timeout: 120_000,
   },
 })

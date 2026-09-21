@@ -6,6 +6,7 @@ const inscriptionValide = {
   email: 'alice@example.com',
   password: 'motdepasse1',
   confirmPassword: 'motdepasse1',
+  consentement: 'on',
 }
 
 describe('connexionSchema', () => {
@@ -31,6 +32,12 @@ describe('inscriptionSchema', () => {
   it('refuse deux mots de passe différents', () => {
     const resultat = inscriptionSchema.safeParse({ ...inscriptionValide, confirmPassword: 'different1' })
     expect(resultat.success).toBe(false)
+  })
+
+  it('refuse une inscription sans consentement à la politique de confidentialité', () => {
+    const sans = inscriptionSchema.safeParse({ ...inscriptionValide, consentement: '' })
+    expect(sans.success).toBe(false)
+    if (!sans.success) expect(sans.error.issues[0]?.path).toEqual(['consentement'])
   })
 
   it('refuse un prénom vide ou trop long', () => {

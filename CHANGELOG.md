@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### Conformité (RGPD)
+- Consentement explicite à l'inscription (données de santé), date enregistrée.
+- Pages légales : politique de confidentialité et mentions légales, identité de l'éditeur par variables d'environnement. Liens « Confidentialité · Mentions légales » en pied de page de toute l'application, des pages d'authentification, de l'onboarding et des formulaires (hors écran de séance en cours).
+- Confirmation de l'adresse e-mail avant la première connexion (lien de 24 h, à usage unique, stocké haché). Les comptes existants sont marqués comme confirmés (migration `conformite`).
+- Export des données au format JSON (`/api/export`) et suppression définitive du compte avec ré-authentification.
+- Tests : intégration (jeton de vérification, suppression en cascade, export) et de bout en bout (inscription avec confirmation, export, suppression).
+- Tests de bout en bout des fonctions de l'app : séance de musculation complète, cardio, mesures, suivi quotidien, objectif, modification du profil, affichage de chaque page, isolation des données entre deux comptes.
+
 ### E-mails
 - Envoi par SMTP (`nodemailer`), sans nom de domaine : une boîte Gmail dédiée avec mot de passe d'application. Prioritaire sur Resend quand `SMTP_HOST`, `SMTP_USER` et `SMTP_PASSWORD` sont définis.
 - En développement sans service configuré, le lien de réinitialisation s'affiche dans le terminal ; en production sans service, l'envoi est refusé.

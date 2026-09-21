@@ -1,12 +1,13 @@
 import Link from 'next/link'
+import { LiensLegaux } from '@/components/legal/liens-legaux'
 import { ConnexionForm } from './connexion-form'
 
 export default async function ConnexionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ reinitialise?: string }>
+  searchParams: Promise<{ reinitialise?: string; verifie?: string; supprime?: string }>
 }) {
-  const { reinitialise } = await searchParams
+  const { reinitialise, verifie, supprime } = await searchParams
 
   return (
     <main className="auth-shell">
@@ -24,12 +25,16 @@ export default async function ConnexionPage({
           <p className="form-success">Mot de passe mis à jour. Connecte-toi avec ton nouveau mot de passe.</p>
         )}
 
+        {verifie && <p className="form-success">Adresse confirmée. Tu peux maintenant te connecter.</p>}
+        {supprime && <p className="form-success">Ton compte et toutes tes données ont été supprimés.</p>}
+
         <ConnexionForm />
 
         <div className="auth-links">
           <Link href="/mot-de-passe-oublie">Mot de passe oublié ?</Link>
           <span>Pas encore de compte ? <Link href="/inscription">Créer un compte</Link></span>
         </div>
+        <LiensLegaux />
       </div>
     </main>
   )

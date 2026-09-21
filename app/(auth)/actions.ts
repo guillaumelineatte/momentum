@@ -9,6 +9,8 @@ import { hashToken } from '@/lib/token'
 import { urlPublique } from '@/lib/url'
 import { ipClient, messageAttente, verifierLimites } from '@/lib/rate-limit'
 import { envoyerEmailReinitialisation } from '@/lib/email'
+import { verificationEmailRequise } from '@/lib/config'
+import { confirmerEmail, envoyerLienVerification } from '@/lib/verification'
 import { signIn, signOut } from '@/auth'
 import {
   connexionSchema,
@@ -20,6 +22,8 @@ import {
 export type ActionState =
   | {
       error?: string
+      /** Code machine d'une erreur particulière (ex. 'email_non_verifie'), pour proposer une action adaptée. */
+      code?: string
       /** Message d'erreur par champ (ex. { email: '...' }). */
       fieldErrors?: Record<string, string>
       /** Valeurs à réafficher pour les champs qui n'étaient PAS en erreur, pour ne pas faire
@@ -54,6 +58,13 @@ export async function connexionAction(_prevState: ActionState, formData: FormDat
     })
   } catch (error) {
     if (error instanceof AuthError) {
+      if ((error as { code?: string }).code === 'email_non_verifie') {
+        return {
+          error: 'Confirme d’abord ton adresse e-mail : clique sur le lien que nous t’avons envoyé.',
+          code: 'email_non_verifie',
+          values: { email },
+        }
+      }
       return { error: 'Adresse e-mail ou mot de passe incorrect.', values: { email } }
     }
     throw error // NEXT_REDIRECT doit être re-lancé, ce n'est pas une vraie erreur
@@ -70,6 +81,7 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
     email: String(formData.get('email') ?? ''),
     password: String(formData.get('password') ?? ''),
     confirmPassword: String(formData.get('confirmPassword') ?? ''),
+    consentement: formData.get('consentement') === 'on' ? 'on' : '',
   }
 
   const parsed = inscriptionSchema.safeParse(brut)
@@ -83,6 +95,7 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
     for (const champ of CHAMPS_RECONDUCTIBLES) {
       if (!fieldErrors[champ]) values[champ] = brut[champ]
     }
+    if (brut.consentement) values.consentement = brut.consentement
     return { fieldErrors, values }
   }
 
@@ -101,9 +114,17 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
 
   const passwordHash = await hashPassword(password)
   await prisma.user.create({
-    data: { name: prenom, email, passwordHash },
+    data: { name: prenom, email, passwordHash, consentementLe: new Date() },
   })
 
+  if (verificationEmailRequise()) {
+    // Pas de connexion automatique : l'adresse doit d'abord être confirmée par le lien envoyé par e-mail.
+    await envoyerLienVerification(email)
+    redirect(`/inscription/confirmation?email=${encodeURIComponent(email)}`)
+  }
+
+  // Confirmation désactivée (développement local) : on marque l'adresse comme vérifiée et on connecte.
+  await prisma.user.update({ where: { email }, data: { emailVerified: new Date() } })
   try {
     await signIn('credentials', { email, password, redirectTo: '/onboarding' })
   } catch (error) {
@@ -114,6 +135,41 @@ export async function inscriptionAction(_prevState: ActionState, formData: FormD
     }
     throw error
   }
+}
+
+export async function confirmerEmailAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const email = formData.get('email')
+  const jeton = formData.get('token')
+  if (typeof email !== 'string' || typeof jeton !== 'string' || !email || !jeton) {
+    return { error: 'Lien invalide.', code: 'lien_invalide' }
+  }
+
+  const limite = await verifierLimites([[`confirmation:ip:${await ipClient()}`, { max: 30, fenetreSecondes: 15 * 60 }]])
+  if (!limite.autorise) return { error: messageAttente(limite.reessayerDansSecondes) }
+
+  if (!(await confirmerEmail(email, jeton))) {
+    return { error: 'Ce lien a expiré ou n’est plus valable. Demande-en un nouveau.', code: 'lien_invalide' }
+  }
+  redirect('/connexion?verifie=1')
+}
+
+export async function renvoyerVerificationAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = motDePasseOublieSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: 'Adresse e-mail invalide.' }
+  const { email } = parsed.data
+
+  // Réponse identique dans tous les cas (limite atteinte, compte inconnu, déjà confirmé) : on ne révèle
+  // pas si un compte existe. La limite protège surtout la boîte mail d'un tiers contre le spam.
+  const limite = await verifierLimites([
+    [`verification:ip:${await ipClient()}`, { max: 10, fenetreSecondes: 60 * 60 }],
+    [`verification:email:${email.toLowerCase()}`, { max: 3, fenetreSecondes: 60 * 60 }],
+  ])
+  if (limite.autorise) {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (user && !user.emailVerified) await envoyerLienVerification(email)
+  }
+
+  redirect(`/inscription/confirmation?email=${encodeURIComponent(email)}&renvoye=1`)
 }
 
 export async function demandeReinitialisationAction(
