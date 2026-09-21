@@ -1,10 +1,5 @@
 import Link from 'next/link'
-import { A_COMPLETER, DATE_MISE_A_JOUR } from '@/lib/legal'
-
-/** Affiche une valeur d'identité ; « [à compléter] » est surligné pour ne pas passer inaperçu. */
-export function Valeur({ children }: { children: string }) {
-  return children === A_COMPLETER ? <mark className="legal-todo">{children}</mark> : <>{children}</>
-}
+import { DATE_MISE_A_JOUR } from '@/lib/legal'
 
 export function PageLegale({ titre, children }: { titre: string; children: React.ReactNode }) {
   return (

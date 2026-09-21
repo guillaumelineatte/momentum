@@ -353,7 +353,6 @@ h1, h2, h3 { font-family: var(--font-display); }
 .legal-card strong { color: inherit; }
 .legal-maj { font-size: 11.5px !important; color: var(--muted-2) !important; margin: 0 0 8px; }
 .legal-retour { font-size: 12px; font-weight: 600; text-decoration: none !important; }
-.legal-todo { background: rgba(255,196,0,.25); color: #ffd866; padding: 0 4px; border-radius: 4px; }
 .legal-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px; }
 .legal-table th, .legal-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.1); vertical-align: top; color: var(--muted); }
 .legal-table th { color: inherit; font-weight: 700; }

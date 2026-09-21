@@ -1,23 +1,20 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { PageLegale, Valeur } from '@/components/legal/page-legale'
-import { identiteEditeur } from '@/lib/legal'
+import { PageLegale } from '@/components/legal/page-legale'
+import { EDITEUR } from '@/lib/legal'
 
 export const metadata: Metadata = { title: 'Mentions légales — Momentum' }
 
 export default function MentionsLegalesPage() {
-  const editeur = identiteEditeur()
-
   return (
     <PageLegale titre="Mentions légales">
       <h2>Éditeur du site</h2>
       <p>
-        <Valeur>{editeur.nom}</Valeur>
-        {editeur.adresse && <>, <Valeur>{editeur.adresse}</Valeur></>}
+        {EDITEUR.nom}
         <br />
-        Contact : <Valeur>{editeur.email}</Valeur>
+        Contact : <a href={`mailto:${EDITEUR.email}`}>{EDITEUR.email}</a>
         <br />
-        Directeur de la publication : <Valeur>{editeur.nom}</Valeur>
+        Directeur de la publication : {EDITEUR.nom}
       </p>
 
       <h2>Hébergement</h2>

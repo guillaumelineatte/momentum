@@ -37,6 +37,8 @@ test('les pages légales sont lisibles sans compte', async ({ page }) => {
   await expect(page).toHaveURL(/\/mentions-legales$/)
   await expect(page.getByRole('heading', { name: 'Mentions légales' })).toBeVisible()
   await expect(page.getByText('Guillaume Linéatte').first()).toBeVisible()
+  await expect(page.getByRole('link', { name: 'logos.appli1@gmail.com' })).toBeVisible()
+  await expect(page.getByText('à compléter')).toHaveCount(0)
 })
 
 test("l'inscription exige d'accepter la politique de confidentialité", async ({ page }) => {
