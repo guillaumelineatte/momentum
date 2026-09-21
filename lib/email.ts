@@ -85,30 +85,53 @@ export async function envoyerEmail(mail: Email): Promise<void> {
 const echapperHtml = (texte: string) =>
   texte.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c)
 
-export async function envoyerEmailReinitialisation(destinataire: string, lienReinitialisation: string) {
-  const lien = echapperHtml(lienReinitialisation)
-  await envoyerEmail({
+type Gabarit = { sujet: string; titre: string; intro: string; bouton: string; lien: string; pied: string }
+
+/** Même mise en page (texte + HTML) pour tous les e-mails de l'application. */
+function composer(destinataire: string, g: Gabarit): Email {
+  const lien = echapperHtml(g.lien)
+  return {
     to: destinataire,
-    subject: 'Réinitialise ton mot de passe Momentum',
-    text: [
-      'Tu as demandé à réinitialiser ton mot de passe Momentum. Ce lien est valable 1 heure :',
-      '',
-      lienReinitialisation,
-      '',
-      "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.",
-    ].join('\n'),
+    subject: g.sujet,
+    text: [g.intro, '', g.lien, '', g.pied].join('\n'),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #be123c;">Réinitialisation de mot de passe</h2>
-        <p>Tu as demandé à réinitialiser ton mot de passe Momentum. Ce lien est valable 1 heure :</p>
+        <h2 style="color: #be123c;">${echapperHtml(g.titre)}</h2>
+        <p>${echapperHtml(g.intro)}</p>
         <p>
           <a href="${lien}" style="display: inline-block; padding: 12px 20px; background: #e11d48; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
-            Choisir un nouveau mot de passe
+            ${echapperHtml(g.bouton)}
           </a>
         </p>
         <p style="color: #666; font-size: 13px;">Si le bouton ne fonctionne pas, copie ce lien : ${lien}</p>
-        <p style="color: #666; font-size: 13px;">Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.</p>
+        <p style="color: #666; font-size: 13px;">${echapperHtml(g.pied)}</p>
       </div>
     `,
-  })
+  }
+}
+
+export async function envoyerEmailReinitialisation(destinataire: string, lienReinitialisation: string) {
+  await envoyerEmail(
+    composer(destinataire, {
+      sujet: 'Réinitialise ton mot de passe Momentum',
+      titre: 'Réinitialisation de mot de passe',
+      intro: 'Tu as demandé à réinitialiser ton mot de passe Momentum. Ce lien est valable 1 heure :',
+      bouton: 'Choisir un nouveau mot de passe',
+      lien: lienReinitialisation,
+      pied: "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.",
+    }),
+  )
+}
+
+export async function envoyerEmailVerification(destinataire: string, lienVerification: string) {
+  await envoyerEmail(
+    composer(destinataire, {
+      sujet: 'Confirme ton adresse e-mail Momentum',
+      titre: 'Bienvenue sur Momentum',
+      intro: 'Confirme ton adresse e-mail pour activer ton compte. Ce lien est valable 24 heures :',
+      bouton: 'Confirmer mon adresse',
+      lien: lienVerification,
+      pied: "Si tu n'as pas créé de compte Momentum, ignore simplement cet e-mail.",
+    }),
+  )
 }

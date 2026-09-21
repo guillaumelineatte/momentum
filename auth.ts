@@ -4,6 +4,8 @@ import { authConfig } from './auth.config'
 import { prisma } from './lib/prisma'
 import { verifyPassword } from './lib/password'
 import { connexionSchema } from './lib/validations/auth'
+import { verificationEmailRequise } from './lib/config'
+import { EmailNonVerifieError } from './lib/auth-errors'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -24,6 +26,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const passwordValide = await verifyPassword(password, user.passwordHash)
         if (!passwordValide) return null
+
+        // Après le mot de passe seulement, pour ne rien révéler à qui ne connaît pas les identifiants.
+        if (verificationEmailRequise() && !user.emailVerified) throw new EmailNonVerifieError()
 
         return { id: user.id, name: user.name, email: user.email }
       },
