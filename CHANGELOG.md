@@ -2,6 +2,11 @@
 
 ## [Non publié]
 
+### E-mails
+- Envoi par SMTP (`nodemailer`), sans nom de domaine : une boîte Gmail dédiée avec mot de passe d'application. Prioritaire sur Resend quand `SMTP_HOST`, `SMTP_USER` et `SMTP_PASSWORD` sont définis.
+- En développement sans service configuré, le lien de réinitialisation s'affiche dans le terminal ; en production sans service, l'envoi est refusé.
+- Le message contient désormais une version texte et le lien en clair.
+
 ### Sécurité des bases
 - Garde-fou `lib/garde-base.ts` : une version de test ou un serveur local ne peut plus se connecter à la base de production, ni la production à la base de dev (vérifié au démarrage et avant chaque build Vercel).
 

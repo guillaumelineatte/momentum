@@ -39,8 +39,11 @@ pnpm db:deploy    # production : applique les migrations en attente
 2. Deux environnements Vercel, deux bases Neon : **Production** (branche `production`) et **Preview** = version de test (branche `dev`). Chacun a sa propre `DATABASE_URL` et son propre `AUTH_SECRET`. Variables :
    - `DATABASE_URL` : chaîne pooled de la branche Neon correspondante
    - `AUTH_SECRET` : `openssl rand -base64 32`
-   - `RESEND_API_KEY`
-   - `EMAIL_FROM` (optionnel) : par défaut `Momentum <onboarding@resend.dev>` ; avec cette adresse, Resend n'envoie qu'au propriétaire du compte. Pour tous les utilisateurs, vérifier un domaine sur resend.com/domains et utiliser une adresse de ce domaine.
+   - E-mails (mot de passe oublié), au choix — le SMTP est prioritaire s'il est complet :
+     - **SMTP, sans nom de domaine** : `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` (une boîte Gmail dédiée à l'app), `SMTP_PASSWORD` (« mot de passe d'application » Google, 16 caractères, validation en deux étapes requise). Envoie à n'importe quelle adresse (quota Gmail ≈ 500 par jour) ; l'expéditeur est l'adresse Gmail, les messages peuvent arriver en spam.
+     - **Resend** : `RESEND_API_KEY` ; sans domaine vérifié, n'envoie qu'au propriétaire du compte Resend.
+     - `EMAIL_FROM` (optionnel) : soit absent, soit renseigné, jamais vide. En SMTP, une adresse `@resend.dev` est ignorée.
+     - Sans aucun service, la production **refuse** d'envoyer (un lien de réinitialisation ne doit jamais finir dans les journaux) ; en développement le lien s'affiche dans le terminal.
    - `NEXTAUTH_URL` (optionnel) : URL du site si domaine personnalisé ; sinon l'URL Vercel est détectée automatiquement.
 3. Déployer. `vercel-build` lance `prisma migrate deploy` à chaque build de production **et** de test, chacun sur sa propre base. Les branches poussées (hors `main`) produisent une version de test sur une URL dédiée.
 4. Base de production créée avant les migrations : la migration `0_init` a été déclarée comme déjà appliquée (`prisma migrate resolve --applied 0_init`). Une nouvelle base n'a besoin que du déploiement, puis de `pnpm db:seed` (exercices et badges).
