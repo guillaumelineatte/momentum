@@ -5,9 +5,9 @@ import { ConnexionForm } from './connexion-form'
 export default async function ConnexionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ reinitialise?: string; verifie?: string }>
+  searchParams: Promise<{ reinitialise?: string; verifie?: string; supprime?: string }>
 }) {
-  const { reinitialise, verifie } = await searchParams
+  const { reinitialise, verifie, supprime } = await searchParams
 
   return (
     <main className="auth-shell">
@@ -26,6 +26,7 @@ export default async function ConnexionPage({
         )}
 
         {verifie && <p className="form-success">Adresse confirmée. Tu peux maintenant te connecter.</p>}
+        {supprime && <p className="form-success">Ton compte et toutes tes données ont été supprimés.</p>}
 
         <ConnexionForm />
 

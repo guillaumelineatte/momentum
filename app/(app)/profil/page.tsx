@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
+import { Download, Pencil, Trash2 } from 'lucide-react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -64,9 +64,21 @@ export default async function ProfilPage() {
             </div>
           </Link>
 
+          <a href="/api/export" download className="glass-card" style={{ borderRadius: 18, padding: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className="stub-icon" style={{ margin: 0 }}><Download size={20} /></div>
+            <div style={{ flex: 1 }}>
+              <strong style={{ display: 'block', fontSize: 13 }}>Exporter mes données</strong>
+              <span style={{ fontSize: 11, color: 'var(--muted)' }}>Télécharge tout ce que Momentum a enregistré (JSON).</span>
+            </div>
+          </a>
+
           <form action={deconnexionAction}>
             <button className="form-submit" type="submit">Se déconnecter</button>
           </form>
+
+          <Link href="/profil/supprimer" className="lien-danger">
+            <Trash2 size={14} /> Supprimer mon compte
+          </Link>
 
           <LiensLegaux />
         </section>
