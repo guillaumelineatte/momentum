@@ -48,6 +48,14 @@ pnpm db:deploy    # production : applique les migrations en attente
 
 Les fonctions Vercel tournent en région `fra1` (Francfort), la même que la base Neon (`eu-central-1`), pour limiter la latence.
 
+## Garde-fou base de données
+
+`lib/garde-base.ts` identifie la base réellement utilisée (identifiant d'endpoint Neon lu dans `DATABASE_URL`, comparé à des empreintes SHA-256) et **refuse de démarrer** si l'environnement ne correspond pas :
+- une version de test (Preview) ou un serveur local branché sur la base de **production** ;
+- un déploiement de **production** branché sur la base **dev**.
+
+Il s'exécute au démarrage de l'application (`lib/prisma.ts`) et avant chaque build Vercel (`scripts/verifier-base.ts`, avant toute migration). Une base inconnue passe : si tu changes légitimement d'endpoint Neon, rien ne casse (mets alors à jour les empreintes dans `lib/garde-base.ts`).
+
 ## Sécurité
 
 - Mots de passe hachés (bcrypt, 12 tours) ; jetons de réinitialisation stockés sous forme de hash SHA-256.
